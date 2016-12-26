@@ -1,5 +1,9 @@
 WIP adaptive http2 Pusher
 
+pusher will auto-magically generate Push Promises based on most served assets on a page by page basis.
+
+The maths to determine which asset will be Pushed still need some fine tuning.
+
 example :
 
 ```go
@@ -24,3 +28,9 @@ func main() {
 
 }
 ```
+
+Response without Push :
+![without push](https://raw.githubusercontent.com/romainmenke/pusher/master/cmd/readme/before_push.png)
+
+Response with Push :
+![with push](https://raw.githubusercontent.com/romainmenke/pusher/master/cmd/readme/after_push.png)
