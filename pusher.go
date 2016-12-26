@@ -21,50 +21,62 @@ var pushMap map[string]*pagePush
 func Pusher(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		mutex.Lock()
-		defer mutex.Unlock()
-
 		defer handler(w, r)
 
 		if isPageGet(r) {
 			if p, ok := w.(http.Pusher); ok {
+
+				mutex.Lock()
+
 				pagePush, found := pushMap[r.URL.String()]
 				if found {
 					trim(pagePush.pushes)
 					for path, push := range pagePush.pushes {
-						if push.weight > 10 {
+						if push.weight > 2 {
 							p.Push(path, nil)
 						}
 					}
 				}
+
+				mutex.Unlock()
+
 			}
 			return
 		}
 
-		ref := pathFromReferer(r.Referer())
-		if ref == "" {
-			return
-		}
-
-		pa, found := pushMap[ref]
-		if !found {
-			pa = &pagePush{
-				pushes: make(map[string]*push),
-			}
-		}
-
-		pu, found := pa.pushes[r.URL.String()]
-		if !found {
-			pu = &push{
-				weight:     0,
-				weightedAt: time.Now(),
-			}
-		}
-
-		pu.weight++
-		pa.pushes[r.URL.String()] = pu
-		pushMap[ref] = pa
+		go addToPushMap(r.Referer(), r.URL.String())
 	})
+}
+
+func addToPushMap(referer string, urlString string) {
+
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	ref := pathFromReferer(referer)
+	if ref == "" {
+		return
+	}
+
+	pa, found := pushMap[ref]
+	if !found {
+		pa = &pagePush{
+			pushes: make(map[string]*push),
+		}
+	}
+
+	pu, found := pa.pushes[urlString]
+	if !found {
+		pu = &push{
+			weight:     0,
+			weightedAt: time.Now(),
+		}
+	}
+
+	pu.weight++
+	pa.pushes[urlString] = pu
+	pushMap[ref] = pa
+
 }
 
 type pagePush struct {

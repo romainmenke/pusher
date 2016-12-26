@@ -30,6 +30,11 @@ var assetExtension = map[string]struct{}{
 	"css": struct{}{},
 	// js
 	"js": struct{}{},
+	// fonts
+	"eot":   struct{}{},
+	"woff":  struct{}{},
+	"woff2": struct{}{},
+	"ttf":   struct{}{},
 	// image
 	"jpeg": struct{}{},
 	"jpg":  struct{}{},

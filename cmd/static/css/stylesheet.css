@@ -1,0 +1,39 @@
+.main-nav {
+	margin-top: 75px;
+	text-align: center;
+}
+
+.image-list {
+	margin-top: 75px;
+	text-align: center;
+}
+
+.image-list__element {
+	display: inline-block;
+	height: 50px;
+	width: 50px;
+}
+
+.image-list__element img {
+	height: 100%;
+	width: 100%;
+}
+
+.random_content {
+	margin-top: 75px;
+	text-align: center;
+}
+
+body {
+	font-family: cutive;
+	font-size: 16px;
+}
+
+a {
+	text-decoration: none;
+}
+
+@font-face {
+	font-family: cutive;
+	src: url(/fonts/CutiveMono-Regular.ttf);
+}
