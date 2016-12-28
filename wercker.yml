@@ -1,0 +1,17 @@
+box: simonmenke/go-build:latest
+
+build:
+  steps:
+  - setup-go-workspace
+
+  - script:
+      name: go build
+      code: |
+        go get ./...
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./...
+  - script:
+      name: go test
+      code: |
+        go get ./...
+        go test ./pkg/...
+  after-steps:
