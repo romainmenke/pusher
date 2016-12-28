@@ -1,3 +1,7 @@
+[![wercker status](https://app.wercker.com/status/e85096dae221207cf6685300fb9db8c3/s/master "wercker status")](https://app.wercker.com/project/byKey/e85096dae221207cf6685300fb9db8c3)
+
+Note : wercker will fail until we update to golang 1.8
+
 WIP adaptive http2 Pusher
 
 pusher will auto-magically generate Push Promises based on most served assets on a page by page basis.
