@@ -1,13 +1,19 @@
 [![wercker status](https://app.wercker.com/status/e85096dae221207cf6685300fb9db8c3/s/master "wercker status")](https://app.wercker.com/project/byKey/e85096dae221207cf6685300fb9db8c3)
 [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
 
+Note : this requires golang 1.8
+
 Note : wercker will fail until we update to golang 1.8
+
+---
 
 WIP adaptive http2 Pusher
 
 pusher will auto-magically generate Push Promises based on most served assets on a page by page basis.
 
 The maths to determine which asset will be Pushed still need some fine tuning.
+
+---
 
 example :
 
@@ -33,6 +39,19 @@ func main() {
 
 }
 ```
+
+---
+
+A working example can be found in the cmd directory.
+
+Setup :
+
+- generate crt : `$ openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 365 -keyout localhost.key -out localhost.crt`
+- place the key and crt into the cmd directoy.
+- trust the crt in keychain.
+- start with : `$ go run ./cmd/main.go`
+- visit : https://localhost:4430/
+---
 
 Response without Push :
 

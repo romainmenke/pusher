@@ -43,6 +43,7 @@ func readFromPushMap(page string, writer func(path string)) {
 func addToPushMap(referer string, urlString string) {
 
 	mutex.Lock()
+	defer mutex.Unlock()
 
 	ref := pathFromReferer(referer)
 	if ref == "" {
@@ -65,8 +66,6 @@ func addToPushMap(referer string, urlString string) {
 	pu.weight++
 	pa[urlString] = pu
 	pushMap[ref] = pa
-
-	mutex.Unlock()
 
 }
 
