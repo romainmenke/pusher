@@ -5,13 +5,15 @@ import (
 	"strings"
 )
 
+// isPageGet is used to differentiate between Pushable and Non-Pushable requests.
+// It returns true when it is Non-Pushable.
+// It uses the file extension in the request URL and the http Method.
 func isPageGet(r *http.Request) bool {
 	if r.Method != "GET" {
 		return false
 	}
 
 	p := r.URL.Path
-	p = strings.TrimPrefix(p, "/")
 	p = strings.ToLower(p)
 	components := strings.Split(p, ".")
 	extension := components[len(components)-1]
@@ -23,6 +25,7 @@ func isPageGet(r *http.Request) bool {
 	return true
 }
 
+// assetExtension is a map with file extensions corresponding to files that might be pushable.
 var assetExtension = map[string]struct{}{
 	// json
 	"json": struct{}{},
