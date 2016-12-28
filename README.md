@@ -5,6 +5,8 @@ Note : this requires golang 1.8
 
 Note : wercker will fail until we update to golang 1.8
 
+Note : can't push nested dependencies (e.g. fonts referenced in css files)
+
 ---
 
 WIP adaptive http2 Pusher

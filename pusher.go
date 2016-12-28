@@ -9,15 +9,17 @@ func Pusher(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Re
 
 		defer handler(w, r)
 
-		if isPageGet(r) {
-			if p, ok := w.(http.Pusher); ok {
-				readFromPushMap(r.URL.String(), func(path string) {
-					p.Push(path, nil)
-				})
-			}
+		if !isPageGet(r) {
+			go addToPushMap(r.Referer(), r.URL.String())
+
 			return
 		}
 
-		go addToPushMap(r.Referer(), r.URL.String())
+		if p, ok := w.(http.Pusher); ok {
+			readFromPushMap(r.URL.String(), func(path string) {
+				p.Push(path, nil)
+			})
+		}
+
 	})
 }

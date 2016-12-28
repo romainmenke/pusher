@@ -28,11 +28,9 @@ func readFromPushMap(page string, writer func(path string)) {
 
 	pagePush, found := pushMap[page]
 	if found {
-		trim(pagePush)
-		for path, push := range pagePush {
-			if push.weight > 2 {
-				writer(path)
-			}
+		trimmed := trim(pagePush)
+		for path := range trimmed {
+			writer(path)
 		}
 	}
 
@@ -42,30 +40,47 @@ func readFromPushMap(page string, writer func(path string)) {
 // addToPushMap is used to add a path to the state map
 func addToPushMap(referer string, urlString string) {
 
+	// lock state
 	mutex.Lock()
+	// unlock state
 	defer mutex.Unlock()
 
+	// get path
 	ref := pathFromReferer(referer)
 	if ref == "" {
 		return
 	}
 
-	pa, found := pushMap[ref]
+	var (
+		pagePushes map[string]*push
+		found      bool
+	)
+
+	// // check if referer is a pushed asset
+	// for parentPath, pagePushes2 := range pushMap {
+	// 	for path := range pagePushes2 {
+	// 		if path == ref {
+	// 			ref = parentPath
+	// 		}
+	// 	}
+	// }
+
+	pagePushes, found = pushMap[ref]
 	if !found {
-		pa = make(map[string]*push)
+		pagePushes = make(map[string]*push)
+		pushMap[ref] = pagePushes
 	}
 
-	pu, found := pa[urlString]
+	p, found := pagePushes[urlString]
 	if !found {
-		pu = &push{
+		p = &push{
 			weight:     0,
 			weightedAt: time.Now(),
 		}
+		pagePushes[urlString] = p
 	}
 
-	pu.weight++
-	pa[urlString] = pu
-	pushMap[ref] = pa
+	p.weight++
 
 }
 

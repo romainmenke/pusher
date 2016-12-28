@@ -18,6 +18,16 @@ func TestIsPageGet(t *testing.T) {
 		t.Fatal()
 	}
 
+	u, _ = url.Parse("https://www.site.com/page/fonts/FontName-Variant.ttf")
+	r = &http.Request{
+		URL:    u,
+		Method: "GET",
+	}
+
+	if isPageGet(r) == true {
+		t.Fatal()
+	}
+
 }
 
 var benchBoolResult bool
