@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"limbo.services/trace"
@@ -19,12 +20,24 @@ func main() {
 			pusher.Handler(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
 		),
 	)
+	http.HandleFunc("/call.json",
+		Tracer(
+			pusher.Handler(APICall),
+		),
+	)
 
 	err := http.ListenAndServeTLS(":4430", "cmd/localhost.crt", "cmd/localhost.key", nil)
 	if err != nil {
 		panic(err)
 	}
 
+}
+
+func APICall(w http.ResponseWriter, r *http.Request) {
+	a := struct {
+		Some string
+	}{Some: "Remote Data"}
+	json.NewEncoder(w).Encode(a)
 }
 
 func Tracer(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
