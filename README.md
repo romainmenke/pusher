@@ -15,6 +15,8 @@ pusher will auto-magically generate Push Promises based on most served assets on
 
 The maths to determine which asset will be Pushed still need some fine tuning.
 
+**Unlike most auto-push middleware pusher does not parse any assets in search of urls. It simply inspects the request headers to generate a 1 level deep asset map for each page. This enables it to be useful single page apps and allows it to push API calls too.**
+
 ---
 
 example :
@@ -31,7 +33,7 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		pusher.Pusher(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
+		pusher.Handler(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
 	)
 
 	err := http.ListenAndServeTLS(":4430", "cmd/localhost.crt", "cmd/localhost.key", nil)

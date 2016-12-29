@@ -16,7 +16,7 @@ func main() {
 
 	http.HandleFunc("/",
 		Tracer(
-			pusher.Pusher(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
+			pusher.Handler(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
 		),
 	)
 
