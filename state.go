@@ -1,6 +1,7 @@
 package pusher
 
 import (
+	"net/http"
 	"net/url"
 	"sync"
 	"time"
@@ -11,20 +12,20 @@ import (
 // create a mutex to protect the state map
 func init() {
 
-	mutex = &sync.Mutex{}
+	mutex = &sync.RWMutex{}
 	pushMap = make(map[string]map[string]*push)
 
 }
 
-// mutex to protext the state map
-var mutex *sync.Mutex
+// mutex to protect the state map
+var mutex *sync.RWMutex
 
 // the state map
 var pushMap map[string]map[string]*push
 
 // readFromPushMap is used to generate the paths for which Push Promises should be created.
 func readFromPushMap(page string, writer func(path string)) {
-	mutex.Lock()
+	mutex.RLock()
 
 	pagePush, found := pushMap[page]
 	if found {
@@ -34,20 +35,20 @@ func readFromPushMap(page string, writer func(path string)) {
 		}
 	}
 
-	mutex.Unlock()
+	mutex.RUnlock()
 }
 
 // addToPushMap is used to add a path to the state map
-func addToPushMap(referer string, urlString string) {
+func addToPushMap(request *http.Request) {
 
 	// lock state
 	mutex.Lock()
 	// unlock state
 	defer mutex.Unlock()
 
-	// get path
-	ref := pathFromReferer(referer)
-	if ref == "" {
+	// get initiator
+	initiator := getInitiator(request)
+	if initiator == "" {
 		return
 	}
 
@@ -56,28 +57,19 @@ func addToPushMap(referer string, urlString string) {
 		found      bool
 	)
 
-	// // check if referer is a pushed asset
-	// for parentPath, pagePushes2 := range pushMap {
-	// 	for path := range pagePushes2 {
-	// 		if path == ref {
-	// 			ref = parentPath
-	// 		}
-	// 	}
-	// }
-
-	pagePushes, found = pushMap[ref]
+	pagePushes, found = pushMap[initiator]
 	if !found {
 		pagePushes = make(map[string]*push)
-		pushMap[ref] = pagePushes
+		pushMap[initiator] = pagePushes
 	}
 
-	p, found := pagePushes[urlString]
+	p, found := pagePushes[request.RequestURI]
 	if !found {
 		p = &push{
 			weight:     0,
 			weightedAt: time.Now(),
 		}
-		pagePushes[urlString] = p
+		pagePushes[request.RequestURI] = p
 	}
 
 	p.weight++
@@ -89,9 +81,7 @@ type push struct {
 	weightedAt time.Time
 }
 
-// pathFromReferer is wrapper around url.Parse that returns url.Path or an empty string
 func pathFromReferer(str string) string {
-
 	u, _ := url.Parse(str)
 	if u == nil {
 		return ""
