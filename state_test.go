@@ -3,6 +3,7 @@ package pusher
 import (
 	"fmt"
 	"math/rand"
+	"net/http"
 	"testing"
 )
 
@@ -10,7 +11,13 @@ func BenchmarkAddToPushMap(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			addToPushMap("/site-"+fmt.Sprint(rand.Intn(10)), "/page-"+fmt.Sprint(rand.Intn(1000)))
+			r := &http.Request{
+				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
+				Header: http.Header{
+					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+				},
+			}
+			addToPushMap(r)
 		}
 	})
 }
@@ -18,7 +25,13 @@ func BenchmarkAddToPushMap(b *testing.B) {
 func BenchmarkReadFromPushMap(b *testing.B) {
 	for n1 := 0; n1 < 100; n1++ {
 		for n2 := 0; n2 < 5; n2++ {
-			addToPushMap("/site-"+fmt.Sprint(n2), "/page-"+fmt.Sprint(n1))
+			r := &http.Request{
+				RequestURI: "/page-" + fmt.Sprint(n1),
+				Header: http.Header{
+					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n2)},
+				},
+			}
+			addToPushMap(r)
 		}
 	}
 
