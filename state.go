@@ -29,10 +29,7 @@ func readFromPushMap(page string, writer func(path string)) {
 
 	pagePush, found := pushMap[page]
 	if found {
-		trimmed := trim(pagePush)
-		for path := range trimmed {
-			writer(path)
-		}
+		trimmed(pagePush, writer)
 	}
 
 	mutex.RUnlock()

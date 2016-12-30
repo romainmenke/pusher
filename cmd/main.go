@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"limbo.services/trace"
@@ -17,7 +18,14 @@ func main() {
 
 	http.HandleFunc("/",
 		Tracer(
-			pusher.Handler(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
+			pusher.Handler(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.Header().Set("Vary", "Accept-Encoding")
+					w.Header().Set("Cache-Control", "public, max-age=7776000")
+					fmt.Println(w.Header())
+					http.FileServer(http.Dir("./cmd/static")).ServeHTTP(w, r)
+				},
+			),
 		),
 	)
 	http.HandleFunc("/call.json",
