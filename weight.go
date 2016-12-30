@@ -5,14 +5,18 @@ import (
 	"time"
 )
 
-// trim applies weights to the state map and deletes paths below a threshold
-func trim(ps map[string]*push) map[string]*push {
+// trimmed applies weights to the state map and deletes paths below a threshold
+// this screws up Scaling
+// TODO: fix this
+func trimmed(ps map[string]*push, writer func(path string)) {
 
 	var max float64
-	res := make(map[string]*push)
 
-	for _, p := range ps {
+	for key, p := range ps {
 		weight(p)
+		if p.weight < 0.8 {
+			delete(ps, key)
+		}
 		if p.weight > max {
 			max = p.weight
 		}
@@ -20,14 +24,9 @@ func trim(ps map[string]*push) map[string]*push {
 
 	for key, p := range ps {
 		if max*0.8 < p.weight && p.weight > 2 {
-			res[key] = p
-		}
-		if p.weight < 0.8 {
-			delete(ps, key)
+			writer(key)
 		}
 	}
-
-	return res
 }
 
 // weight applies a decay rate to paths.
