@@ -24,7 +24,7 @@ func trimmed(ps map[string]*push, writer func(path string)) {
 	}
 
 	for key, p := range ps {
-		if max*0.8 < p.weight && p.weight > 2 {
+		if max*0.8 < p.weight && p.weight > 10 {
 			writer(key)
 		}
 	}

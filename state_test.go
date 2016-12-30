@@ -19,7 +19,7 @@ func BenchmarkAddToPushMap1000x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -32,7 +32,7 @@ func BenchmarkAddToPushMap1000x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -48,7 +48,7 @@ func BenchmarkReadFromPushMap1000x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -73,7 +73,7 @@ func BenchmarkAddToPushMap1000x100(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -86,7 +86,7 @@ func BenchmarkAddToPushMap1000x100(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -102,7 +102,7 @@ func BenchmarkReadFromPushMap1000x100(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -127,7 +127,7 @@ func BenchmarkAddToPushMap1000x1000(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -140,7 +140,7 @@ func BenchmarkAddToPushMap1000x1000(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -156,7 +156,7 @@ func BenchmarkReadFromPushMap1000x1000(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -183,7 +183,7 @@ func BenchmarkAddToPushMap10x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -196,7 +196,7 @@ func BenchmarkAddToPushMap10x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -212,7 +212,7 @@ func BenchmarkReadFromPushMap10x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -237,7 +237,7 @@ func BenchmarkAddToPushMap100x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -250,7 +250,7 @@ func BenchmarkAddToPushMap100x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -266,7 +266,7 @@ func BenchmarkReadFromPushMap100x10(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -291,7 +291,7 @@ func BenchmarkAddToPushMap1000x10b(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 
@@ -304,7 +304,7 @@ func BenchmarkAddToPushMap1000x10b(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	})
 }
@@ -320,7 +320,7 @@ func BenchmarkReadFromPushMap1000x10b(b *testing.B) {
 					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
-			addToPushMap(r)
+			addToPushMap(r, 1)
 		}
 	}
 

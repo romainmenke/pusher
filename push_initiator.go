@@ -49,7 +49,7 @@ func setInitiatorForOptions(request *http.Request, opts *http.PushOptions) *http
 	return opts
 }
 
-func setInitiatorForWriter(writer http.ResponseWriter, request *http.Request) {
+func setInitiatorForWriter(writer http.ResponseWriter, request *http.Request) string {
 
 	var pushInitiators []string
 
@@ -60,9 +60,9 @@ func setInitiatorForWriter(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if len(pushInitiators) == 0 {
-		return
+		return ""
 	}
 
 	writer.Header().Add(PushInitiatorKey, pushInitiators[0])
-	return
+	return pushInitiators[0]
 }

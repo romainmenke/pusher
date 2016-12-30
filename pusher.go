@@ -10,9 +10,12 @@ func Handler(handler func(http.ResponseWriter, *http.Request)) func(http.Respons
 		defer handler(w, r)
 
 		setInitiatorForWriter(w, r)
-
 		if !isPageGet(r) {
-			go addToPushMap(r)
+			if getInitiator(r) != "" {
+				go addToPushMap(r, 1)
+			} else {
+				go addToPushMap(r, 0.1)
+			}
 			return
 		}
 

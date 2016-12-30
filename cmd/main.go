@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"limbo.services/trace"
@@ -22,7 +21,6 @@ func main() {
 				func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Vary", "Accept-Encoding")
 					w.Header().Set("Cache-Control", "public, max-age=7776000")
-					fmt.Println(w.Header())
 					http.FileServer(http.Dir("./cmd/static")).ServeHTTP(w, r)
 				},
 			),

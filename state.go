@@ -36,7 +36,7 @@ func readFromPushMap(page string, writer func(path string)) {
 }
 
 // addToPushMap is used to add a path to the state map
-func addToPushMap(request *http.Request) {
+func addToPushMap(request *http.Request, increment float64) {
 
 	// lock state
 	mutex.Lock()
@@ -69,7 +69,7 @@ func addToPushMap(request *http.Request) {
 		pagePushes[request.RequestURI] = p
 	}
 
-	p.weight++
+	p.weight += increment
 
 }
 
