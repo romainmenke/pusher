@@ -8,7 +8,7 @@ Note : wercker will fail until we update to golang 1.8
 Note : can't push nested dependencies (e.g. fonts referenced in css files)
 
 Note : benchmarks indicate a scaling issue with large numbers of dependencies, large numbers of pages scale perfectly. Will investigate.
-±10 dependencies per page can be handled in 3000ns
+±10 dependencies per page can be read from state in 900ns. The duration scales linearly with the number of dependencies.
 
 ---
 
