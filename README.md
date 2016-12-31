@@ -23,9 +23,9 @@ Note : wercker will fail until we update to golang 1.8
 
 After some work I got it down to these numbers :
 
-10 dependency reads : 800ns
-100 dependency reads : 6000ns
-1000 dependency reads : 62000ns
+- 10 dependency reads : 800ns
+- 100 dependency reads : 6000ns
+- 1000 dependency reads : 62000ns
 
 If a single page has more than a 100 dependencies there are easier ways to optimize.
 
