@@ -45,7 +45,7 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		pusher.Handler(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
+		pusher.HandlerFunc(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
 	)
 
 	err := http.ListenAndServeTLS(":4430", "cmd/localhost.crt", "cmd/localhost.key", nil)
