@@ -17,7 +17,7 @@ func main() {
 
 	http.HandleFunc("/",
 		Tracer(
-			pusher.Handler(
+			pusher.HandlerFunc(
 				func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Vary", "Accept-Encoding")
 					w.Header().Set("Cache-Control", "public, max-age=7776000")
@@ -28,7 +28,7 @@ func main() {
 	)
 	http.HandleFunc("/call.json",
 		Tracer(
-			pusher.Handler(APICall),
+			pusher.HandlerFunc(APICall),
 		),
 	)
 
