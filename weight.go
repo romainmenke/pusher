@@ -23,8 +23,10 @@ func trimmed(page map[string]*dependency, writer func(path string)) {
 		}
 	}
 
+	max = max * 0.95
+
 	for key, d := range page {
-		if max*0.8 < d.weight && d.weight > 10 {
+		if max < d.weight && d.weight > 10 {
 			writer(key)
 		}
 
