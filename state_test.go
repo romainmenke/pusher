@@ -9,8 +9,9 @@ import (
 
 // Test Scaling Of Pushes
 func BenchmarkAddToPushMap1000x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -39,8 +40,9 @@ func BenchmarkAddToPushMap1000x10(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap1000x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -65,8 +67,9 @@ func BenchmarkReadFromPushMap1000x10(b *testing.B) {
 }
 
 func BenchmarkAddToPushMap1000x100(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 100; n2++ {
@@ -95,8 +98,9 @@ func BenchmarkAddToPushMap1000x100(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap1000x100(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 100; n2++ {
@@ -121,8 +125,9 @@ func BenchmarkReadFromPushMap1000x100(b *testing.B) {
 }
 
 func BenchmarkAddToPushMap1000x1000(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 1000; n2++ {
@@ -151,8 +156,9 @@ func BenchmarkAddToPushMap1000x1000(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap1000x1000(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 1000; n2++ {
@@ -179,8 +185,9 @@ func BenchmarkReadFromPushMap1000x1000(b *testing.B) {
 // Test Scaling Of Pages
 
 func BenchmarkAddToPushMap10x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 10; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -209,8 +216,9 @@ func BenchmarkAddToPushMap10x10(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap10x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 10; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -235,8 +243,9 @@ func BenchmarkReadFromPushMap10x10(b *testing.B) {
 }
 
 func BenchmarkAddToPushMap100x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 100; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -265,8 +274,9 @@ func BenchmarkAddToPushMap100x10(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap100x10(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 100; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -291,8 +301,9 @@ func BenchmarkReadFromPushMap100x10(b *testing.B) {
 }
 
 func BenchmarkAddToPushMap1000x10b(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
@@ -321,8 +332,9 @@ func BenchmarkAddToPushMap1000x10b(b *testing.B) {
 }
 
 func BenchmarkReadFromPushMap1000x10b(b *testing.B) {
-	pages = make(map[string]map[string]*dependency)
-	dependencies = make(map[string]*dependency)
+	state = &collection{
+		nodes: make(map[string]*node),
+	}
 
 	for n1 := 0; n1 < 1000; n1++ {
 		for n2 := 0; n2 < 10; n2++ {
