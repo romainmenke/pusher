@@ -17,8 +17,6 @@ Note : wercker will fail until we update to golang 1.8
 
 ### Issues :
 
-**pusher** can't push nested dependencies (e.g. fonts referenced in css files). At the moment I consider this an acceptable draw-back.
-
 **benchmarks** indicate a scaling issue with large numbers of dependencies, the number of pages in state has no effect on performance. Will investigate.
 
 After some work I got it down to these numbers :
