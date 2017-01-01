@@ -24,6 +24,23 @@ func getInitiator(request *http.Request) string {
 	return pathFromReferer(pushInitiators[0])
 }
 
+func getPushInitiator(request *http.Request) string {
+
+	var pushInitiators []string
+
+	for k, v := range request.Header {
+		if strings.ToLower(k) == PushInitiatorKey {
+			pushInitiators = v
+		}
+	}
+
+	if len(pushInitiators) == 0 {
+		return ""
+	}
+
+	return pathFromReferer(pushInitiators[0])
+}
+
 func setInitiatorForOptions(request *http.Request, opts *http.PushOptions) *http.PushOptions {
 
 	var pushInitiators []string

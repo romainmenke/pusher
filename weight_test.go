@@ -10,7 +10,7 @@ func TestWeight(t *testing.T) {
 	now := time.Now()
 	fiveMinutesAgo := now.Add(time.Minute * -5)
 
-	p := &push{
+	p := &dependency{
 		weightedAt: fiveMinutesAgo,
 		weight:     10,
 	}
@@ -30,7 +30,7 @@ func BenchmarkWeight(b *testing.B) {
 	now := time.Now()
 	fiveMinutesAgo := time.Now().Add(time.Minute * -5)
 
-	p := &push{
+	p := &dependency{
 		weightedAt: fiveMinutesAgo,
 		weight:     10,
 	}

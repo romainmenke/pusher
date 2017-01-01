@@ -13,7 +13,8 @@ import (
 func init() {
 
 	mutex = &sync.RWMutex{}
-	pushMap = make(map[string]map[string]*push)
+	pages = make(map[string]map[string]*dependency)
+	dependencies = make(map[string]*dependency)
 
 }
 
@@ -21,15 +22,16 @@ func init() {
 var mutex *sync.RWMutex
 
 // the state map
-var pushMap map[string]map[string]*push
+var pages map[string]map[string]*dependency
+var dependencies map[string]*dependency
 
 // readFromPushMap is used to generate the paths for which Push Promises should be created.
-func readFromPushMap(page string, writer func(path string)) {
+func readFromPushMap(path string, writer func(path string)) {
 	mutex.RLock()
 
-	pagePush, found := pushMap[page]
+	page, found := pages[path]
 	if found {
-		trimmed(pagePush, writer)
+		trimmed(page, writer)
 	}
 
 	mutex.RUnlock()
@@ -50,32 +52,50 @@ func addToPushMap(request *http.Request, increment float64) {
 	}
 
 	var (
-		pagePushes map[string]*push
-		found      bool
+		page  map[string]*dependency
+		d     *dependency
+		d1    *dependency
+		found bool
 	)
 
-	pagePushes, found = pushMap[initiator]
-	if !found {
-		pagePushes = make(map[string]*push)
-		pushMap[initiator] = pagePushes
+	d1, found = dependencies[initiator]
+	if found {
+
+		if d1.dependencies == nil {
+			d1.dependencies = make(map[string]*dependency)
+		}
+
+		page = d1.dependencies
+
+	} else {
+
+		page, found = pages[initiator]
+		if !found {
+			page = make(map[string]*dependency)
+			pages[initiator] = page
+		}
+
 	}
 
-	p, found := pagePushes[request.RequestURI]
+	d, found = dependencies[request.RequestURI]
 	if !found {
-		p = &push{
+		d = &dependency{
 			weight:     0,
 			weightedAt: time.Now(),
 		}
-		pagePushes[request.RequestURI] = p
 	}
 
-	p.weight += increment
+	dependencies[request.RequestURI] = d
+	page[request.RequestURI] = d
+
+	d.weight += increment
 
 }
 
-type push struct {
-	weight     float64
-	weightedAt time.Time
+type dependency struct {
+	weight       float64
+	weightedAt   time.Time
+	dependencies map[string]*dependency
 }
 
 func pathFromReferer(str string) string {
