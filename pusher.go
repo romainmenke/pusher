@@ -1,6 +1,9 @@
 package pusher
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type pushHandler struct {
 	handlerFunc http.HandlerFunc
@@ -39,7 +42,7 @@ func newHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.
 
 		setInitiatorForWriter(w, r)
 		if isAssetGet(r) {
-			if getPushInitiator(r) != "" { // pushed content
+			if isPushedResource(r) { // pushed content
 				addToPushMap(r, 0.1)
 			} else { // regular fetch
 				addToPushMap(r, 1)
@@ -48,10 +51,14 @@ func newHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.
 		}
 
 		if p, ok := w.(http.Pusher); ok {
-			readFromPushMap(r.RequestURI, func(path string) {
+			resourceKey := resourceKeyFromRequest(r)
+			readFromPushMap(resourceKey, func(path string) {
 				opts := &http.PushOptions{}
 				opts = setInitiatorForOptions(r, opts)
-				p.Push(path, opts)
+				err := p.Push(path, opts)
+				if err != nil {
+					fmt.Println(err)
+				}
 			})
 		}
 

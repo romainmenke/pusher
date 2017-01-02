@@ -3,7 +3,6 @@ package pusher
 import (
 	"math"
 	"net/http"
-	"net/url"
 	"sync"
 	"time"
 )
@@ -46,23 +45,14 @@ func addToPushMap(request *http.Request, increment float64) {
 	collectionMutex.Lock()
 	defer collectionMutex.Unlock()
 
-	// get initiator
-	initiator := getInitiator(request)
-	if initiator == "" {
+	ownerKey := ownerKeyFromRequest(request)
+	resourceKey := resourceKeyFromRequest(request)
+	if ownerKey == "" || resourceKey == "" {
 		return
 	}
 
-	state.bind(request.RequestURI, initiator, increment)
+	state.bind(resourceKey, ownerKey, increment)
 
-}
-
-func pathFromReferer(str string) string {
-	u, _ := url.Parse(str)
-	if u == nil {
-		return ""
-	}
-
-	return u.Path
 }
 
 // State
@@ -156,7 +146,7 @@ func (c *collection) travel(ownerPath string, pusher func(path string)) {
 
 	for resourcePath, conn := range ownerNode.connections {
 
-		conn.weight = conn.weight * (math.Pow((0.5), (now.Sub(conn.weightedAt).Minutes() / 5)))
+		conn.weight = weight(conn.weight, conn.weightedAt, now)
 		conn.weightedAt = now
 
 		if conn.weight < 0.8 {
@@ -172,12 +162,15 @@ func (c *collection) travel(ownerPath string, pusher func(path string)) {
 	for resourcePath, conn := range ownerNode.connections {
 		if max < conn.weight && conn.weight > 10 {
 			pusher(resourcePath)
-		}
-
-		if conn.to != nil && conn.to.connections != nil {
-			c.travel(conn.to.path, pusher)
+			if conn.to != nil && conn.to.connections != nil {
+				c.travel(conn.to.path, pusher)
+			}
 		}
 	}
+}
+
+func weight(amount float64, weightedAt time.Time, now time.Time) float64 {
+	return amount * (math.Pow((0.5), (now.Sub(weightedAt).Minutes() / 5)))
 }
 
 type node struct {

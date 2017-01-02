@@ -18,7 +18,7 @@ func BenchmarkAddToPushMap1000x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -31,7 +31,7 @@ func BenchmarkAddToPushMap1000x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -49,7 +49,7 @@ func BenchmarkReadFromPushMap1000x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -76,7 +76,7 @@ func BenchmarkAddToPushMap1000x100(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -89,7 +89,7 @@ func BenchmarkAddToPushMap1000x100(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -107,7 +107,7 @@ func BenchmarkReadFromPushMap1000x100(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -134,7 +134,7 @@ func BenchmarkAddToPushMap1000x1000(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -147,7 +147,7 @@ func BenchmarkAddToPushMap1000x1000(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -165,7 +165,7 @@ func BenchmarkReadFromPushMap1000x1000(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -194,7 +194,7 @@ func BenchmarkAddToPushMap10x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -207,7 +207,7 @@ func BenchmarkAddToPushMap10x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -225,7 +225,7 @@ func BenchmarkReadFromPushMap10x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -252,7 +252,7 @@ func BenchmarkAddToPushMap100x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -265,7 +265,7 @@ func BenchmarkAddToPushMap100x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -283,7 +283,7 @@ func BenchmarkReadFromPushMap100x10(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -310,7 +310,7 @@ func BenchmarkAddToPushMap1000x10b(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
@@ -323,7 +323,7 @@ func BenchmarkAddToPushMap1000x10b(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(rand.Intn(1000)),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(rand.Intn(10))},
 				},
 			}
 			addToPushMap(r, 1)
@@ -341,7 +341,7 @@ func BenchmarkReadFromPushMap1000x10b(b *testing.B) {
 			r := &http.Request{
 				RequestURI: "/page-" + fmt.Sprint(n2),
 				Header: http.Header{
-					PushInitiatorKey: []string{"/site-" + fmt.Sprint(n1)},
+					PushRefererKey: []string{"/site-" + fmt.Sprint(n1)},
 				},
 			}
 			addToPushMap(r, 1)
