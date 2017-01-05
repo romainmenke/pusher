@@ -62,14 +62,14 @@ func main() {
 
 ---
 
-A working example can be found in the cmd directory.
+A working example can be found in the example directory.
 
 Setup :
 
 - generate crt : `$ openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 365 -keyout localhost.key -out localhost.crt`
 - place the key and crt into the cmd directoy.
 - trust the crt in keychain.
-- start with : `$ go run ./cmd/main.go`
+- start with : `$ go run ./example/main.go`
 - visit : https://localhost:4430/
 
 ---
