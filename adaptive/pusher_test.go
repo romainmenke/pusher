@@ -1,10 +1,10 @@
-package pusher
+package adaptive
 
 import "net/http"
 
 func ExampleHandler() {
 
-	// Pusher wraps around the static file HandlerFunc
+	// Handler wraps around the static file HandlerFunc
 	http.HandleFunc("/",
 		Handler(http.FileServer(http.Dir("./cmd/static"))).ServeHTTP,
 	)

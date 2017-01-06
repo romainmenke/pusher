@@ -1,7 +1,6 @@
-package pusher
+package adaptive
 
 import (
-	"math"
 	"net/http"
 	"sync"
 	"time"
@@ -167,10 +166,6 @@ func (c *collection) travel(ownerPath string, pusher func(path string)) {
 			}
 		}
 	}
-}
-
-func weight(amount float64, weightedAt time.Time, now time.Time) float64 {
-	return amount * (math.Pow((0.5), (now.Sub(weightedAt).Minutes() / 5)))
 }
 
 type node struct {
