@@ -14,7 +14,7 @@ func main() {
 			func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Vary", "Accept-Encoding")
 				w.Header().Set("Cache-Control", "public, max-age=7776000")
-				http.FileServer(http.Dir("./cmd/static")).ServeHTTP(w, r)
+				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			},
 		),
 	)
@@ -24,7 +24,7 @@ func main() {
 		adaptive.HandlerFunc(APICall),
 	)
 
-	err := http.ListenAndServeTLS(":4430", "cmd/localhost.crt", "cmd/localhost.key", nil)
+	err := http.ListenAndServeTLS(":4430", "./adaptive/example/localhost.crt", "./adaptive/example/localhost.key", nil)
 	if err != nil {
 		panic(err)
 	}

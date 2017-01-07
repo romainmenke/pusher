@@ -36,17 +36,25 @@ func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(h
 
 type pusher struct {
 	writer http.ResponseWriter
+	header http.Header
+	status int
 }
 
 func newPusher(writer http.ResponseWriter) *pusher {
-	return &pusher{writer: writer}
+	return &pusher{writer: writer, header: make(http.Header)}
 }
 
 func (p *pusher) WriteHeader(rc int) {
-	p.writer.WriteHeader(rc)
+	p.status = rc
 }
 
 func (p *pusher) Write(b []byte) (int, error) {
+	p.Push()
+	p.writer.WriteHeader(p.status)
+	return p.writer.Write(b)
+}
+
+func (p *pusher) Push() {
 
 	var (
 		pusher     http.Pusher
@@ -54,31 +62,31 @@ func (p *pusher) Write(b []byte) (int, error) {
 		linkHeader []string
 	)
 
-	pusher, ok = p.writer.(http.Pusher)
-	if !ok {
-		return p.writer.Write(b)
-	}
+	for k, v := range p.Header() {
 
-	for k, v := range p.writer.Header() {
 		if strings.ToLower(k) != "link" {
+			p.writer.Header()[k] = v
 			continue
 		}
 		linkHeader = v
 	}
 
-	if len(linkHeader) == 0 {
-		return p.writer.Write(b)
+	pusher, ok = p.writer.(http.Pusher)
+	if !ok || len(linkHeader) == 0 {
+		return
 	}
 
 	for _, link := range linkHeader {
 		parsed := parseLinkHeader(link)
 		if parsed == "" || isAbsolute(parsed) {
+			p.writer.Header().Add("link", link)
 			continue
 		}
 		pusher.Push(parsed, nil)
 	}
 
-	return p.writer.Write(b)
+	return
+
 }
 
 func parseLinkHeader(h string) string {
@@ -87,6 +95,7 @@ func parseLinkHeader(h string) string {
 
 	components := strings.Split(h, ";")
 	for _, component := range components {
+
 		if strings.HasPrefix(component, "<") && strings.HasSuffix(component, ">") {
 			path = component
 			path = strings.TrimPrefix(path, "<")
@@ -95,11 +104,11 @@ func parseLinkHeader(h string) string {
 		}
 
 		subComponents := strings.Split(component, "=")
-		if len(subComponents) > 0 && subComponents[0] == "nopush" {
+		if len(subComponents) > 0 && strings.Replace(subComponents[0], " ", "", -1) == "nopush" {
 			return ""
 		}
 
-		if len(subComponents) > 1 && subComponents[0] == "rel" && subComponents[1] == "preload" {
+		if len(subComponents) > 1 && strings.Replace(subComponents[0], " ", "", -1) == "rel" && strings.Replace(subComponents[1], " ", "", -1) == "preload" {
 			return path
 		}
 	}
@@ -117,5 +126,5 @@ func isAbsolute(p string) bool {
 }
 
 func (p *pusher) Header() http.Header {
-	return p.writer.Header()
+	return p.header
 }
