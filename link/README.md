@@ -50,6 +50,8 @@ func main() {
 
 ---
 
+Reference for `Link` headers :
+
 https://w3c.github.io/preload/
 
 | consumer | Preload directive |

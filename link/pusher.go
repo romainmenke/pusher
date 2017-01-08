@@ -90,34 +90,6 @@ func (p *pusher) Push() {
 
 }
 
-func parseLinkHeader(h string) string {
-
-	var path string
-
-	components := strings.Split(h, ";")
-	for _, component := range components {
-
-		if strings.HasPrefix(component, "<") && strings.HasSuffix(component, ">") {
-			path = component
-			path = strings.TrimPrefix(path, "<")
-			path = strings.TrimSuffix(path, ">")
-			path = "/" + strings.TrimPrefix(path, "/")
-			continue
-		}
-
-		subComponents := strings.Split(component, "=")
-		if len(subComponents) > 0 && strings.Replace(subComponents[0], " ", "", -1) == "nopush" {
-			return ""
-		}
-
-		if len(subComponents) > 1 && strings.Replace(subComponents[0], " ", "", -1) == "rel" && strings.Replace(subComponents[1], " ", "", -1) == "preload" {
-			return path
-		}
-	}
-
-	return ""
-}
-
 func isAbsolute(p string) bool {
 	u, err := url.Parse(p)
 	if err != nil {
