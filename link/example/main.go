@@ -60,6 +60,5 @@ func APICall(w http.ResponseWriter, r *http.Request) {
 	a := struct {
 		Some string
 	}{Some: "Remote Data"}
-	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(a)
 }
