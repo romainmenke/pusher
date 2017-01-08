@@ -7,6 +7,8 @@ It is heavily based upon the cloudflare http2 Push implementation.
 
 https://blog.cloudflare.com/announcing-support-for-http-2-server-push-2/
 
+https://blog.cloudflare.com/http-2-server-push-with-multiple-assets-per-link-header/
+
 ### How :
 
 **link** inspects the response headers to generate Push Promise frames.
@@ -45,5 +47,23 @@ func main() {
 
 }
 ```
+
+---
+
+https://w3c.github.io/preload/
+
+| consumer | Preload directive |
+|----------|-------------------|
+| `<audio>, <video>` | `<link rel=preload as=media href=...>` |
+| `<script>, Worker's importScripts` | `<link rel=preload as=script href=...>` |
+| `<link rel=stylesheet>, CSS @import` | `<link rel=preload as=style href=...>` |
+| `CSS @font-face` | `<link rel=preload as=font href=...>` |
+| `<img>, <picture>, srcset, imageset` | `<link rel=preload as=image href=...>` |
+| `SVG's <image>, CSS *-image` | `<link rel=preload as=image href=...>` |
+| `XHR, fetch` | `<link rel=preload href=...>` |
+| `Worker, SharedWorker` | `<link rel=preload as=worker href=...>` |
+| `<embed>` | `<link rel=preload as=embed href=...>` |
+| `<object>` | `<link rel=preload as=object href=...>` |
+| `<iframe>, <frame>` | `<link rel=preload as=document href=...>` |
 
 ---

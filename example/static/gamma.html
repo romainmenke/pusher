@@ -3,29 +3,6 @@
 
 <head>
 <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
-<script type="text/javascript">
-function loadJSON() {
-	var xmlhttp = new XMLHttpRequest();
-
-	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-			if (xmlhttp.status == 200) {
-				var res = JSON.parse(xmlhttp.response);
-				document.getElementById("call_result").innerHTML = res.Some;
-			}
-			else if (xmlhttp.status == 400) {
-				alert('There was an error 400');
-			}
-			else {
-				alert('something else other than 200 was returned');
-			}
-		}
-	};
-
-	xmlhttp.open("GET", "/call.json", true);
-	xmlhttp.send();
-}
-</script>
 </head>
 
 <body onload="loadJSON()">
@@ -39,8 +16,30 @@ function loadJSON() {
 
 	<div class="random_content">
 		<div id="call_result">
+			Local Data
 		</div>
 	</div>
+
+	<script type="text/javascript">
+	function loadJSON() {
+		var xmlhttp = new XMLHttpRequest();
+
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
+				if ((xmlhttp.status / 100) == 2) {
+					var res = JSON.parse(xmlhttp.response);
+					document.getElementById("call_result").innerHTML = res.Some;
+				}
+				else {
+					console.log(xmlhttp.status, xmlhttp);
+				}
+			}
+		};
+
+		xmlhttp.open("GET", "/call.json", true);
+		xmlhttp.send();
+	}
+	</script>
 
 </body>
 </html>
