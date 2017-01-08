@@ -26,6 +26,30 @@ func TestParseLinkHeaderC(t *testing.T) {
 	}
 }
 
+func TestParseLinkHeaderD(t *testing.T) {
+
+	res := parseLinkHeader("rel=preload; as=font; </fonts/CutiveMono-Regular.ttf>;")
+	if res != "/fonts/CutiveMono-Regular.ttf" {
+		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
+	}
+}
+
+func TestParseLinkHeaderE(t *testing.T) {
+
+	res := parseLinkHeader("< /fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+	if res != "/fonts/CutiveMono-Regular.ttf" {
+		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
+	}
+}
+
+func TestParseLinkHeaderF(t *testing.T) {
+
+	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf >; rel=preload; as=font;")
+	if res != "/fonts/CutiveMono-Regular.ttf" {
+		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
+	}
+}
+
 func TestParseLinkHeaderBadA(t *testing.T) {
 
 	res := parseLinkHeader("/fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")

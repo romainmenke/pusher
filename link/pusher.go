@@ -28,9 +28,7 @@ func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
 
 func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		handler(newPusher(w), r)
-
 	})
 }
 
