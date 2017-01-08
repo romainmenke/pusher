@@ -12,13 +12,33 @@ func main() {
 	http.HandleFunc("/",
 		link.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Vary", "Accept-Encoding")
-				w.Header().Set("Cache-Control", "public, max-age=7776000")
 
-				if r.URL.RequestURI() == "/" {
-
-					w.Header().Set("Link", "</css/stylesheet.css>; rel=preload; as=style")
+				// adding link headers is done manually in the example.
+				// this better illustrates the workings of the push handler
+				switch r.URL.RequestURI() {
+				case "/":
+					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+					w.Header().Add("link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+				case "/alpha.html":
+					w.Header().Add("link", "</css/stylesheet.css>; rel=preload; as=style;")
+					w.Header().Add("link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+					w.Header().Add("link", "</js/text_change.js>; rel=preload; as=script;")
+				case "/beta.html":
+					w.Header().Add("link", "</css/stylesheet.css>; rel=preload; as=style;")
+					w.Header().Add("link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+					w.Header().Add("link", "</img/gopher.png>; rel=preload; as=image;")
+					w.Header().Add("link", "</img/gopher1.png>; rel=preload; as=image;")
+					w.Header().Add("link", "</img/gopher2.png>; rel=preload; as=image;")
+					w.Header().Add("link", "</img/gopher3.png>; rel=preload; as=image;")
+					w.Header().Add("link", "</img/gopher4.png>; rel=preload; as=image;")
+					w.Header().Add("link", "</img/gopher5.png>; rel=preload; as=image;")
+				case "/gamma.html":
+					w.Header().Add("link", "</css/stylesheet.css>; rel=preload; as=style;")
+					w.Header().Add("link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+					w.Header().Add("link", "</call.json>; rel=preload;")
+				default:
 				}
+
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			},
 		),
@@ -40,5 +60,6 @@ func APICall(w http.ResponseWriter, r *http.Request) {
 	a := struct {
 		Some string
 	}{Some: "Remote Data"}
+	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(a)
 }

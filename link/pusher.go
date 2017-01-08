@@ -63,7 +63,6 @@ func (p *pusher) Push() {
 	)
 
 	for k, v := range p.Header() {
-
 		if strings.ToLower(k) != "link" {
 			p.writer.Header()[k] = v
 			continue
@@ -82,6 +81,8 @@ func (p *pusher) Push() {
 			p.writer.Header().Add("link", link)
 			continue
 		}
+
+		p.writer.Header().Add("Go-H2-Pushed", link)
 		pusher.Push(parsed, nil)
 	}
 
@@ -100,6 +101,7 @@ func parseLinkHeader(h string) string {
 			path = component
 			path = strings.TrimPrefix(path, "<")
 			path = strings.TrimSuffix(path, ">")
+			path = "/" + strings.TrimPrefix(path, "/")
 			continue
 		}
 
