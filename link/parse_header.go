@@ -4,13 +4,6 @@ import "strings"
 
 func parseLinkHeader(h string) string {
 
-	if !strings.Contains(h, "rel=preload") {
-		return ""
-	}
-	if strings.Contains(h, "nopush") {
-		return ""
-	}
-
 	var linkStart int
 	var linkEnd int
 
@@ -32,5 +25,12 @@ RUNELOOP:
 		return ""
 	}
 
-	return strings.Replace(h[linkStart:linkEnd], " ", "", -1)
+	if !strings.Contains(h[linkEnd+1:], "rel=preload") {
+		return ""
+	}
+	if strings.Contains(h[linkEnd+1:], "nopush") {
+		return ""
+	}
+
+	return strings.TrimSpace(h[linkStart:linkEnd])
 }

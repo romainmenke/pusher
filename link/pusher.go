@@ -28,14 +28,22 @@ func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
 func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		// only push on "GET" requests
+		if r.Method != "GET" {
+			handler(w, r)
+			return
+		}
+
 		// if the client does not support H2 Push, abort as early as possible
-		_, ok = p.writer.(http.Pusher)
+		_, ok := w.(http.Pusher)
 		if !ok {
 			handler(w, r)
 			return
 		}
 
-		handler(&pusher{writer: w, header: make(http.Header)}, r)
+		p := pusher{writer: w, header: make(http.Header)}
+
+		handler(&p, r)
 	})
 }
 
@@ -94,10 +102,6 @@ func (p *pusher) Header() http.Header {
 // by all HTTP/2 clients. Handlers should read before writing if
 // possible to maximize compatibility.
 func (p *pusher) Write(b []byte) (int, error) {
-	p.Push()
-	if p.status != 0 {
-		p.writer.WriteHeader(p.status)
-	}
 	return p.writer.Write(b)
 }
 
@@ -107,39 +111,64 @@ func (p *pusher) Write(b []byte) (int, error) {
 // Thus explicit calls to WriteHeader are mainly used to
 // send error codes.
 func (p *pusher) WriteHeader(rc int) {
-	p.status = rc
+	p.Push()
+	p.writer.WriteHeader(rc)
 }
 
 // Push Sends Push Frames to the client for each link header found in the response headers.
 func (p *pusher) Push() {
 
 	var (
-		pusher     http.Pusher
-		ok         bool
-		linkHeader []string
+		pusher http.Pusher
 	)
 
 	pusher = p.writer.(http.Pusher)
 
 	for k, v := range p.Header() {
-		if strings.ToLower(k) != "link" {
+		if strings.ToLower(k) != "Link" {
 			p.writer.Header()[k] = v
 			continue
 		}
-		linkHeader = v
-	}
 
-	for _, link := range linkHeader {
-		parsed := parseLinkHeader(link)
-		if parsed == "" || isAbsolute(parsed) {
-			p.writer.Header().Add("link", link)
-			continue
+		for _, link := range v {
+			parsed := parseLinkHeader(link)
+			if parsed == "" || isAbsolute(parsed) {
+				p.writer.Header().Add("Link", link)
+				continue
+			}
+
+			p.writer.Header().Add("Go-H2-Pushed", link)
+			pusher.Push(parsed, nil)
 		}
-
-		p.writer.Header().Add("Go-H2-Pushed", link)
-		pusher.Push(parsed, nil)
 	}
 
 	return
 
+}
+
+type LinkHeaderSlice []string
+
+func (s LinkHeaderSlice) Len() int {
+	return len(s)
+}
+func (s LinkHeaderSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s LinkHeaderSlice) Less(i, j int) bool {
+	parsedI := parseLinkHeader(s[i])
+	parsedJ := parseLinkHeader(s[i])
+
+	if parsedI == "" && parsedJ == "" {
+		return false
+	}
+
+	if parsedI != "" && parsedJ != "" {
+		return false
+	}
+
+	if parsedI != "" {
+		return true
+	}
+
+	return len(s[i]) < len(s[j])
 }
