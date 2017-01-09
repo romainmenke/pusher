@@ -27,6 +27,14 @@ func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
 
 func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// if the client does not support H2 Push, abort as early as possible
+		_, ok = p.writer.(http.Pusher)
+		if !ok {
+			handler(w, r)
+			return
+		}
+
 		handler(&pusher{writer: w, header: make(http.Header)}, r)
 	})
 }
@@ -111,17 +119,14 @@ func (p *pusher) Push() {
 		linkHeader []string
 	)
 
+	pusher = p.writer.(http.Pusher)
+
 	for k, v := range p.Header() {
 		if strings.ToLower(k) != "link" {
 			p.writer.Header()[k] = v
 			continue
 		}
 		linkHeader = v
-	}
-
-	pusher, ok = p.writer.(http.Pusher)
-	if !ok || len(linkHeader) == 0 {
-		return
 	}
 
 	for _, link := range linkHeader {
