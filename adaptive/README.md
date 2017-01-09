@@ -16,7 +16,7 @@
 
 ### How is it great :
 
-Because **adaptive** inspects the upstream headers and does not parse downstream data it is fast. Really fast. This makes it great for proxies. There is also no overhead for more pages, which is also great for proxies.
+Because **adaptive** inspects the request headers and does not parse response data it is fast. Really fast. This makes it great for proxies. There is also no overhead for more pages, which is also great for proxies.
 
 ### Issues :
 

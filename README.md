@@ -17,7 +17,7 @@ At the moment there is :
 - link : a push handler based on `Link` headers.
 
 Planned :
-- parser : a push handler that parses downstream data to generate push frames
+- parser : a push handler that parses response data to generate push frames
 
 Checkout the sub-packages for more details.
 
