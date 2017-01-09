@@ -1,7 +1,7 @@
 
 ### What :
 
-**link** is an `http.HandlerFunc` to enable http2 Push Promises based on downstream `Link` headers.
+**link** is an `http.HandlerFunc` to enable http2 Push Promises based on response `Link` headers.
 
 It is heavily based upon the cloudflare http2 Push implementation.
 
@@ -19,7 +19,7 @@ https://blog.cloudflare.com/http-2-server-push-with-multiple-assets-per-link-hea
 
 ### How is it great :
 
-Because **link** inspects the downstream headers it leaves Push config over to the content server which gives you a lot of flexibility and control over what gets pushed.
+Because **link** inspects the response headers, it leaves Push config over to the content server which gives you a lot of flexibility and control over what gets pushed.
 
 ---
 
