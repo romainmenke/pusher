@@ -1,9 +1,6 @@
 package link
 
-import (
-	"net/http"
-	"strings"
-)
+import "net/http"
 
 type pushHandler struct {
 	handlerFunc http.HandlerFunc
@@ -15,9 +12,10 @@ func (h *pushHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Handler wraps a http.Handler.
 func Handler(handler http.Handler) http.Handler {
-	return &pushHandler{
+	h := pushHandler{
 		handlerFunc: newPushHandlerFunc(handler.ServeHTTP),
 	}
+	return &h
 }
 
 // HandlerFunc wraps a http.HandlerFunc.
@@ -35,14 +33,17 @@ func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(h
 		}
 
 		// if the client does not support H2 Push, abort as early as possible
-		_, ok := w.(http.Pusher)
+		var ok bool
+		_, ok = w.(http.Pusher)
 		if !ok {
 			handler(w, r)
 			return
 		}
 
-		p := pusher{writer: w, header: make(http.Header)}
-
+		var p pusher
+		var header http.Header
+		header = make(http.Header)
+		p = pusher{writer: w, header: header}
 		handler(&p, r)
 	})
 }
@@ -125,14 +126,14 @@ func (p *pusher) Push() {
 	pusher = p.writer.(http.Pusher)
 
 	for k, v := range p.Header() {
-		if strings.ToLower(k) != "Link" {
+		if k != "Link" {
 			p.writer.Header()[k] = v
 			continue
 		}
 
 		for _, link := range v {
 			parsed := parseLinkHeader(link)
-			if parsed == "" || isAbsolute(parsed) {
+			if parsed == "" {
 				p.writer.Header().Add("Link", link)
 				continue
 			}
@@ -163,12 +164,12 @@ func (s LinkHeaderSlice) Less(i, j int) bool {
 	}
 
 	if parsedI != "" && parsedJ != "" {
-		return false
+		return len(s[i]) < len(s[j])
 	}
 
 	if parsedI != "" {
 		return true
 	}
 
-	return len(s[i]) < len(s[j])
+	return false
 }

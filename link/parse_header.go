@@ -32,5 +32,11 @@ RUNELOOP:
 		return ""
 	}
 
-	return strings.TrimSpace(h[linkStart:linkEnd])
+	res := strings.TrimSpace(h[linkStart:linkEnd])
+
+	if isAbsolute(res) {
+		return ""
+	}
+
+	return res
 }
