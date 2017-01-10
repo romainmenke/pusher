@@ -39,28 +39,53 @@ func TestPusher(t *testing.T) {
 
 func BenchmarkPusher(b *testing.B) {
 
-	var (
-		req *http.Request
-		err error
-		rr  http.ResponseWriter
-		h   http.HandlerFunc
-	)
-
-	req, err = http.NewRequest("GET", "/", nil)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-	rr = httptest.NewRecorder()
-
-	h = HandlerFunc(testHandler)
-
-	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 
-		h(rr, req) // 1 allocs
+		var (
+			req *http.Request
+			err error
+			rr  http.ResponseWriter
+			h   http.HandlerFunc
+		)
+
+		req, err = http.NewRequest("GET", "/", nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		rr = httptest.NewRecorder()
+
+		h = HandlerFunc(testHandler)
+
+		h(rr, req) // 16 allocs
 
 	}
 
+}
+
+func BenchmarkHandler(b *testing.B) {
+
+	for n := 0; n < b.N; n++ {
+
+		var (
+			req *http.Request
+			err error
+			rr  http.ResponseWriter
+			h   http.HandlerFunc
+		)
+
+		req, err = http.NewRequest("GET", "/", nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		rr = httptest.NewRecorder()
+
+		h = testHandler
+
+		h(rr, req) // 15 allocs
+
+	}
 }
