@@ -2,8 +2,6 @@ package link
 
 import "net/http"
 
-// var _ FullResponseWriter = &testRecorder{}
-
 type testWriter struct {
 	HeaderMap http.Header // the HTTP response headers
 

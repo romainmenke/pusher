@@ -2,7 +2,7 @@ package link
 
 import "testing"
 
-func TestLinkHeaderSlice(t *testing.T) {
+func TestByPushable(t *testing.T) {
 	// https://tools.ietf.org/html/rfc5988
 	header := []string{
 		"<http://example.com/TheBook/chapter2>; rel=previous; title=previous chapter",
@@ -18,7 +18,7 @@ func TestLinkHeaderSlice(t *testing.T) {
 		"</call.json>; rel=preload;",
 	}
 
-	LinkHeaderSlice(header).Sort()
+	ByPushable(header).Sort()
 
 	for _, h := range header {
 		t.Log(h)
@@ -27,17 +27,27 @@ func TestLinkHeaderSlice(t *testing.T) {
 
 }
 
-func BenchmarkLinkHeaderSlice(b *testing.B) {
+func BenchmarkByPushableSort(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		LinkHeaderSlice(testHeader()).Sort()
+		ByPushable(testHeaderLink()).Sort()
 
 	}
 
 }
 
-var testHeader = func() []string {
+func BenchmarkLinkHeaderSplit(b *testing.B) {
+
+	for n := 0; n < b.N; n++ {
+
+		ByPushable(testHeaderLink()).Split()
+
+	}
+
+}
+
+var testHeaderLink = func() []string {
 	return []string{
 		"<http://example.com/TheBook/chapter2>; rel=previous; title=previous chapter",
 		"</>; rel=http://example.net/foo",

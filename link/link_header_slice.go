@@ -1,14 +1,14 @@
 package link
 
-type LinkHeaderSlice []string
+type ByPushable []string
 
-func (s LinkHeaderSlice) Len() int {
+func (s ByPushable) Len() int {
 	return len(s)
 }
-func (s LinkHeaderSlice) Swap(i, j int) {
+func (s ByPushable) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s LinkHeaderSlice) Less(i, j int) bool {
+func (s ByPushable) Less(i, j int) bool {
 	parsedI := parseLinkHeader(s[i])
 	parsedJ := parseLinkHeader(s[j])
 
@@ -19,24 +19,24 @@ func (s LinkHeaderSlice) Less(i, j int) bool {
 	return false
 }
 
-func (s LinkHeaderSlice) Sort() {
+func (s ByPushable) Sort() {
 	var trueCounter int
 
 	for i := range s {
 		if parseLinkHeader(s[i]) != "" {
-			s.Swap(trueCounter, i) // swap
-			trueCounter++          // next "true" item will move in the next slot
+			s.Swap(trueCounter, i)
+			trueCounter++
 		}
 	}
 }
 
-func (s LinkHeaderSlice) Split() ([]string, []string) {
+func (s ByPushable) Split() ([]string, []string) {
 	var trueCounter int
 
 	for i := range s {
 		if parseLinkHeader(s[i]) != "" {
-			s.Swap(trueCounter, i) // swap
-			trueCounter++          // next "true" item will move in the next slot
+			s.Swap(trueCounter, i)
+			trueCounter++
 		}
 	}
 
