@@ -2,28 +2,12 @@ package link
 
 import "net/http"
 
-type pushHandler struct {
-	handlerFunc http.HandlerFunc
-}
-
-func (h *pushHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.handlerFunc(w, r)
-}
-
-// Handler wraps a http.Handler.
-func Handler(handler http.Handler) http.Handler {
-	h := pushHandler{
-		handlerFunc: newPushHandlerFunc(handler.ServeHTTP),
-	}
-	return &h
-}
-
 // HandlerFunc wraps a http.HandlerFunc.
 func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return newPushHandlerFunc(handlerFunc)
 }
 
-func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func newPushHandlerFunc(handler http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// only push on "GET" requests
@@ -47,11 +31,10 @@ func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(h
 
 		var p pusher
 		var header http.Header
-		header = make(http.Header)
+		header = http.Header{}
 		p = pusher{writer: w, header: header}
 		handler(&p, r)
 
-		handler(w, r)
 	})
 }
 
@@ -124,19 +107,21 @@ func (p *pusher) WriteHeader(rc int) {
 }
 
 // Push Sends Push Frames to the client for each link header found in the response headers.
-func (p *pusher) Push() {
+func (p *pusher) Push() { // 5 allocs
 
 	var (
 		pusher      http.Pusher
+		pushHeader  http.Header
 		pushOptions *http.PushOptions
 		parsed      string
 	)
 
 	pusher = p.writer.(http.Pusher)
+	pushHeader = http.Header{
+		"Go-H2-Push": []string{"true"},
+	}
 	pushOptions = &http.PushOptions{
-		Header: http.Header{
-			"Go-H2-Push": []string{"true"},
-		},
+		Header: pushHeader,
 	}
 
 	for k, v := range p.Header() {
