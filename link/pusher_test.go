@@ -39,7 +39,7 @@ func TestPusher(t *testing.T) {
 
 }
 
-func BenchmarkPusher(b *testing.B) {
+func BenchmarkPusher(b *testing.B) { // 16 allocs
 
 	for n := 0; n < b.N; n++ {
 
@@ -60,13 +60,13 @@ func BenchmarkPusher(b *testing.B) {
 
 		h = HandlerFunc(testHandler)
 
-		h(rr, req) // 16 allocs
+		h(rr, req)
 
 	}
 
 }
 
-func BenchmarkHandler(b *testing.B) {
+func BenchmarkHandler(b *testing.B) { // 15 allocs
 
 	for n := 0; n < b.N; n++ {
 
@@ -87,7 +87,91 @@ func BenchmarkHandler(b *testing.B) {
 
 		h = testHandler
 
-		h(rr, req) // 15 allocs
+		h(rr, req)
+
+	}
+}
+
+var testReq *http.Request
+var testErr error
+var testResponseWriter http.ResponseWriter
+var testHandlerFunc http.HandlerFunc
+
+func BenchmarkAllocA(b *testing.B) { // 7 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr = http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		testResponseWriter = httptest.NewRecorder()
+
+		testHandlerFunc = HandlerFunc(testHandler)
+
+	}
+}
+
+func BenchmarkAllocB(b *testing.B) { // 6 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr = http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		testResponseWriter = httptest.NewRecorder()
+
+		testHandlerFunc = testHandler
+
+	}
+}
+
+func BenchmarkAllocC(b *testing.B) { // 7 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr = http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		testResponseWriter = httptest.NewRecorder()
+
+		testHandlerFunc = newPushHandlerFunc(testHandler)
+
+	}
+}
+
+func BenchmarkAllocD(b *testing.B) { // 7 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr = http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		testResponseWriter = httptest.NewRecorder()
+
+		// if the client does not support H2 Push, abort as early as possible
+		var ok bool
+		_, ok = testResponseWriter.(http.Pusher)
+		if !ok {
+			return
+		}
+
+		var p pusher
+		var header http.Header
+		header = make(http.Header)
+		p = pusher{writer: testResponseWriter, header: header}
+		p.Push()
 
 	}
 }

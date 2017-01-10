@@ -50,6 +50,8 @@ func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(h
 		header = make(http.Header)
 		p = pusher{writer: w, header: header}
 		handler(&p, r)
+
+		handler(w, r)
 	})
 }
 
@@ -151,7 +153,7 @@ func (p *pusher) Push() {
 				continue
 			}
 
-			pusher.Push(parsed, nil)
+			pusher.Push(parsed, pushOptions)
 		}
 
 		p.writer.Header()["Link"] = toLink
