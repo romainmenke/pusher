@@ -1,6 +1,9 @@
 package link
 
-import "net/http"
+import (
+	"net/http"
+	"sort"
+)
 
 type pushHandler struct {
 	handlerFunc http.HandlerFunc
@@ -120,7 +123,10 @@ func (p *pusher) WriteHeader(rc int) {
 func (p *pusher) Push() {
 
 	var (
-		pusher http.Pusher
+		pusher             http.Pusher
+		linkHeaderEndIndex int
+		parsed             string
+		hasPush            bool
 	)
 
 	pusher = p.writer.(http.Pusher)
@@ -131,45 +137,27 @@ func (p *pusher) Push() {
 			continue
 		}
 
-		for _, link := range v {
-			parsed := parseLinkHeader(link)
+		sort.Sort(LinkHeaderSlice(v))
+
+		for index, link := range v {
+			parsed = parseLinkHeader(link)
 			if parsed == "" {
-				p.writer.Header().Add("Link", link)
-				continue
+				linkHeaderEndIndex = index
+				break
 			}
 
-			p.writer.Header().Add("Go-H2-Pushed", link)
+			hasPush = true
 			pusher.Push(parsed, nil)
 		}
+
+		if hasPush && linkHeaderEndIndex == 0 {
+			linkHeaderEndIndex = len(v)
+		}
+
+		p.writer.Header()["Link"] = v[linkHeaderEndIndex:]
+		p.writer.Header()["Go-H2-Pushed"] = v[:linkHeaderEndIndex]
 	}
 
 	return
 
-}
-
-type LinkHeaderSlice []string
-
-func (s LinkHeaderSlice) Len() int {
-	return len(s)
-}
-func (s LinkHeaderSlice) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s LinkHeaderSlice) Less(i, j int) bool {
-	parsedI := parseLinkHeader(s[i])
-	parsedJ := parseLinkHeader(s[i])
-
-	if parsedI == "" && parsedJ == "" {
-		return false
-	}
-
-	if parsedI != "" && parsedJ != "" {
-		return len(s[i]) < len(s[j])
-	}
-
-	if parsedI != "" {
-		return true
-	}
-
-	return false
 }
