@@ -148,7 +148,7 @@ func BenchmarkAllocC(b *testing.B) { // 7 allocs
 	}
 }
 
-func BenchmarkAllocD(b *testing.B) { // 7 allocs
+func BenchmarkAllocD(b *testing.B) { // 0 allocs
 
 	for n := 0; n < b.N; n++ {
 
