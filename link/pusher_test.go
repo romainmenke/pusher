@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+var testRes = []byte{}
+
 var testHandler = func(w http.ResponseWriter, r *http.Request) {
 
 	// adding link headers is done manually in the example.
@@ -17,7 +19,7 @@ var testHandler = func(w http.ResponseWriter, r *http.Request) {
 	default:
 	}
 
-	w.Write([]byte{})
+	w.Write(testRes)
 }
 
 func TestPusher(t *testing.T) {

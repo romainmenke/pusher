@@ -1,9 +1,6 @@
 package link
 
-import (
-	"net/http"
-	"sort"
-)
+import "net/http"
 
 type pushHandler struct {
 	handlerFunc http.HandlerFunc
@@ -31,6 +28,11 @@ func newPushHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(h
 
 		// only push on "GET" requests
 		if r.Method != "GET" {
+			handler(w, r)
+			return
+		}
+
+		if r.Header.Get("Go-H2-Push") != "" {
 			handler(w, r)
 			return
 		}
@@ -123,13 +125,17 @@ func (p *pusher) WriteHeader(rc int) {
 func (p *pusher) Push() {
 
 	var (
-		pusher             http.Pusher
-		linkHeaderEndIndex int
-		parsed             string
-		hasPush            bool
+		pusher      http.Pusher
+		pushOptions *http.PushOptions
+		parsed      string
 	)
 
 	pusher = p.writer.(http.Pusher)
+	pushOptions = &http.PushOptions{
+		Header: http.Header{
+			"Go-H2-Push": []string{"true"},
+		},
+	}
 
 	for k, v := range p.Header() {
 		if k != "Link" {
@@ -137,25 +143,19 @@ func (p *pusher) Push() {
 			continue
 		}
 
-		sort.Sort(LinkHeaderSlice(v))
+		toPush, toLink := LinkHeaderSlice(v).Split()
 
-		for index, link := range v {
+		for _, link := range toPush {
 			parsed = parseLinkHeader(link)
 			if parsed == "" {
-				linkHeaderEndIndex = index
-				break
+				continue
 			}
 
-			hasPush = true
 			pusher.Push(parsed, nil)
 		}
 
-		if hasPush && linkHeaderEndIndex == 0 {
-			linkHeaderEndIndex = len(v)
-		}
-
-		p.writer.Header()["Link"] = v[linkHeaderEndIndex:]
-		p.writer.Header()["Go-H2-Pushed"] = v[:linkHeaderEndIndex]
+		p.writer.Header()["Link"] = toLink
+		p.writer.Header()["Go-H2-Pushed"] = toPush
 	}
 
 	return

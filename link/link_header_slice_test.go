@@ -1,9 +1,6 @@
 package link
 
-import (
-	"sort"
-	"testing"
-)
+import "testing"
 
 func TestLinkHeaderSlice(t *testing.T) {
 	// https://tools.ietf.org/html/rfc5988
@@ -21,7 +18,7 @@ func TestLinkHeaderSlice(t *testing.T) {
 		"</call.json>; rel=preload;",
 	}
 
-	sort.Sort(LinkHeaderSlice(header))
+	LinkHeaderSlice(header).Sort()
 
 	for _, h := range header {
 		t.Log(h)
@@ -32,10 +29,9 @@ func TestLinkHeaderSlice(t *testing.T) {
 
 func BenchmarkLinkHeaderSlice(b *testing.B) {
 
-	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 
-		sort.Sort(LinkHeaderSlice(testHeader()))
+		LinkHeaderSlice(testHeader()).Sort()
 
 	}
 
