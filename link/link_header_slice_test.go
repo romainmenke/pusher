@@ -18,7 +18,7 @@ func TestByPushable(t *testing.T) {
 		"</call.json>; rel=preload;",
 	}
 
-	ByPushable(header).Sort()
+	sortLinkHeaders(header)
 
 	for _, h := range header {
 		t.Log(h)
@@ -31,7 +31,7 @@ func BenchmarkByPushableSort(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		ByPushable(testHeaderLink()).Sort()
+		sortLinkHeaders(testHeaderLink())
 
 	}
 
@@ -41,7 +41,7 @@ func BenchmarkLinkHeaderSplit(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		ByPushable(testHeaderLink()).Split()
+		splitLinkHeaders(testHeaderLink())
 
 	}
 

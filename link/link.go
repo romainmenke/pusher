@@ -28,15 +28,10 @@ func Push(header http.Header, pusher http.Pusher) { // 0 allocs
 		return
 	}
 
-	toPush, toLink := ByPushable(linkHeaders).Split()
+	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
 
 	for _, link := range toPush {
-		parsed := parseLinkHeader(link)
-		if parsed == "" {
-			continue
-		}
-
-		pusher.Push(parsed, nil)
+		pusher.Push(link, nil)
 	}
 
 	header["Link"] = toLink
