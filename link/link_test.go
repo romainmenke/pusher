@@ -19,6 +19,23 @@ var testHandler = func(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte{})
 }
 
+func BenchmarkLinkHandler(b *testing.B) { // 11 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr := http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		testResponseWriter := NewTestWriter()
+		testHandlerFunc := HandlerFunc(testHandler)
+
+		testHandlerFunc(testResponseWriter, testReq)
+
+	}
+}
+
 func BenchmarkRegularHandler(b *testing.B) { // 9 allocs
 
 	for n := 0; n < b.N; n++ {
@@ -28,9 +45,7 @@ func BenchmarkRegularHandler(b *testing.B) { // 9 allocs
 			b.Fatal(testErr)
 		}
 
-		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 		testResponseWriter := NewTestWriter()
-
 		testHandlerFunc := testHandler
 
 		testHandlerFunc(testResponseWriter, testReq)
