@@ -1,8 +1,26 @@
 package link
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
-func CanPush(w http.ResponseWriter, r *http.Request) bool {
+func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !CanPush(r) {
+			handler(w, r)
+			return
+		}
+
+		var rw = responseWriter{writer: w}
+		handler(&rw, r)
+
+	}
+}
+
+// CanPush checks if the Request is Pushable
+func CanPush(r *http.Request) bool {
 	if r.Method != "GET" {
 		return false
 	}
@@ -11,17 +29,11 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	var ok bool
-	_, ok = w.(http.Pusher)
-	if !ok {
-		return false
-	}
-
 	return true
 }
 
-// Push Sends Push Frames to the client for each link header found in the response headers.
-func Push(header http.Header, pusher http.Pusher) { // 0 allocs
+// InitiatePush parses Link Headers of a response to generate Push Frames.
+func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
 
 	linkHeaders, ok := header["Link"]
 	if !ok {
@@ -36,7 +48,14 @@ func Push(header http.Header, pusher http.Pusher) { // 0 allocs
 			continue
 		}
 
-		pusher.Push(parsed, nil)
+		err := pusher.Push(parsed, &http.PushOptions{
+			Header: http.Header{
+				"Go-H2-Push": []string{parsed},
+			},
+		})
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	header["Link"] = toLink

@@ -8,7 +8,7 @@ import (
 var testHandler = func(w http.ResponseWriter, r *http.Request) {
 
 	// adding link headers is done manually in the example.
-	// this better illustrates the workings of the push handler
+	// this better illustrates the workings of the InitiatePush handler
 	switch r.URL.RequestURI() {
 	case "/":
 		w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
@@ -69,7 +69,7 @@ func BenchmarkAllocC(b *testing.B) { // 5 allocs
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
 
-		Push(testHeader, testResponseWriter)
+		InitiatePush(testHeader, testResponseWriter)
 
 	}
 }
@@ -83,7 +83,7 @@ func BenchmarkAllocD(b *testing.B) { // 4 allocs
 
 		testHeader[LinkHeaderKey] = []string{}
 
-		Push(testHeader, testResponseWriter)
+		InitiatePush(testHeader, testResponseWriter)
 
 	}
 }
@@ -97,7 +97,7 @@ func BenchmarkAllocE(b *testing.B) { // 5 allocs
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;"}
 
-		Push(testHeader, testResponseWriter)
+		InitiatePush(testHeader, testResponseWriter)
 
 	}
 }
@@ -115,7 +115,7 @@ func BenchmarkAllocF(b *testing.B) { // 0 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		Push(testGlobalHeader, testGlobalResponseWriter)
+		InitiatePush(testGlobalHeader, testGlobalResponseWriter)
 
 	}
 }

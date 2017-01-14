@@ -10,7 +10,7 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		HandlerFunc(
+		link.HandleFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 
 				// adding link headers is done manually in the example.
@@ -46,7 +46,7 @@ func main() {
 
 	// json calls have been removed from pushed for now
 	http.HandleFunc("/call.json",
-		HandlerFunc(APICall),
+		link.HandleFunc(APICall),
 	)
 
 	err := http.ListenAndServeTLS(":4430", "./adaptive/example/localhost.crt", "./adaptive/example/localhost.key", nil)
@@ -61,40 +61,4 @@ func APICall(w http.ResponseWriter, r *http.Request) {
 		Some string
 	}{Some: "Remote Data"}
 	json.NewEncoder(w).Encode(a)
-}
-
-func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
-	return newPushHandlerFunc(handlerFunc)
-}
-
-func newPushHandlerFunc(handler http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		if !link.CanPush(w, r) {
-			handler(w, r)
-			return
-		}
-
-		var p pusher
-		p = pusher{writer: w}
-		handler(&p, r)
-
-	})
-}
-
-type pusher struct {
-	writer http.ResponseWriter
-}
-
-func (p *pusher) Header() http.Header {
-	return p.writer.Header()
-}
-
-func (p *pusher) Write(b []byte) (int, error) {
-	return p.writer.Write(b)
-}
-
-func (p *pusher) WriteHeader(rc int) {
-	link.Push(p.Header(), p.writer.(http.Pusher))
-	p.writer.WriteHeader(rc)
 }
