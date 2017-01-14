@@ -19,6 +19,23 @@ var testHandler = func(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte{})
 }
 
+func BenchmarkLinkHandler(b *testing.B) { // 11 allocs
+
+	for n := 0; n < b.N; n++ {
+
+		testReq, testErr := http.NewRequest("GET", "/", nil)
+		if testErr != nil {
+			b.Fatal(testErr)
+		}
+
+		testResponseWriter := newTestWriter()
+		testHandlerFunc := HandleFunc(testHandler)
+
+		testHandlerFunc(testResponseWriter, testReq)
+
+	}
+}
+
 func BenchmarkRegularHandler(b *testing.B) { // 9 allocs
 
 	for n := 0; n < b.N; n++ {
@@ -28,9 +45,7 @@ func BenchmarkRegularHandler(b *testing.B) { // 9 allocs
 			b.Fatal(testErr)
 		}
 
-		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-		testResponseWriter := NewTestWriter()
-
+		testResponseWriter := newTestWriter()
 		testHandlerFunc := testHandler
 
 		testHandlerFunc(testResponseWriter, testReq)
@@ -54,7 +69,7 @@ func BenchmarkAllocB(b *testing.B) { // 0 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		testResponseWriter := NewTestWriter()
+		testResponseWriter := newTestWriter()
 		testResponseWriter.WriteHeader(200)
 
 	}
@@ -64,7 +79,7 @@ func BenchmarkAllocC(b *testing.B) { // 5 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		testResponseWriter := NewTestWriter()
+		testResponseWriter := newTestWriter()
 		testHeader := http.Header{}
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
@@ -78,7 +93,7 @@ func BenchmarkAllocD(b *testing.B) { // 4 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		testResponseWriter := NewTestWriter()
+		testResponseWriter := newTestWriter()
 		testHeader := http.Header{}
 
 		testHeader[LinkHeaderKey] = []string{}
@@ -92,7 +107,7 @@ func BenchmarkAllocE(b *testing.B) { // 5 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		testResponseWriter := NewTestWriter()
+		testResponseWriter := newTestWriter()
 		testHeader := http.Header{}
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;"}
@@ -106,7 +121,7 @@ var testGlobalResponseWriter *testWriter
 var testGlobalHeader http.Header
 
 func init() {
-	testGlobalResponseWriter = NewTestWriter()
+	testGlobalResponseWriter = newTestWriter()
 	testGlobalHeader = http.Header{}
 	testGlobalHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
 }

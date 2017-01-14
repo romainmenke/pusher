@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// HandleFunc wraps an http.HandlerFunc with H2 Push functionality.
 func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -19,7 +20,7 @@ func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// CanPush checks if the Request is Pushable
+// CanPush checks if the Request is Pushable.
 func CanPush(r *http.Request) bool {
 	if r.Method != "GET" {
 		return false
@@ -40,7 +41,7 @@ func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
 		return
 	}
 
-	toPush, toLink := ByPushable(linkHeaders).Split()
+	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
 
 	for _, link := range toPush {
 		parsed := parseLinkHeader(link)

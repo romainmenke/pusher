@@ -7,7 +7,7 @@ type testWriter struct {
 
 }
 
-func NewTestWriter() *testWriter {
+func newTestWriter() *testWriter {
 	return &testWriter{
 		HeaderMap: make(http.Header),
 	}
