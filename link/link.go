@@ -14,8 +14,8 @@ func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		var rw = responseWriter{writer: w}
-		handler(&rw, r)
+		var rw = responseWriter(w)
+		handler(rw, r)
 
 	}
 }
@@ -44,14 +44,13 @@ func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
 	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
 
 	for _, link := range toPush {
-		parsed := parseLinkHeader(link)
-		if parsed == "" {
+		if link == "" {
 			continue
 		}
 
-		err := pusher.Push(parsed, &http.PushOptions{
+		err := pusher.Push(link, &http.PushOptions{
 			Header: http.Header{
-				"Go-H2-Push": []string{parsed},
+				"Go-H2-Push": []string{link},
 			},
 		})
 		if err != nil {
