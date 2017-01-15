@@ -27,8 +27,8 @@ var state *collection
 // readFromPushMap is used to generate the paths for which Push Promises should be created.
 func readFromPushMap(path string, writer func(path string)) {
 
-	collectionMutex.RLock()
-	defer collectionMutex.RUnlock()
+	collectionMutex.Lock()
+	defer collectionMutex.Unlock()
 
 	state.travel(path, writer)
 
@@ -37,8 +37,8 @@ func readFromPushMap(path string, writer func(path string)) {
 // addToPushMap is used to add a path to the state map
 func addToPushMap(request *http.Request, increment float64) {
 
-	collectionMutex.RLock()
-	defer collectionMutex.RUnlock()
+	collectionMutex.Lock()
+	defer collectionMutex.Unlock()
 
 	ownerKey := ownerKeyFromRequest(request)
 	resourceKey := resourceKeyFromRequest(request)
