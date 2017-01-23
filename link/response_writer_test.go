@@ -9,6 +9,6 @@ import (
 
 func Test(t *testing.T) {
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return HandleFunc(h.ServeHTTP)
+		return Handler(h)
 	})
 }

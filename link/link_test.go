@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var testHandler = func(w http.ResponseWriter, r *http.Request) {
+var testHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 	// adding link headers is done manually in the example.
 	// this better illustrates the workings of the InitiatePush handler
@@ -17,7 +17,7 @@ var testHandler = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte{})
-}
+})
 
 func BenchmarkLinkHandler(b *testing.B) { // 11 allocs
 
@@ -29,9 +29,9 @@ func BenchmarkLinkHandler(b *testing.B) { // 11 allocs
 		}
 
 		testResponseWriter := newTestWriter()
-		testHandlerFunc := HandleFunc(testHandler)
+		testHandlerFunc := Handler(testHandler)
 
-		testHandlerFunc(testResponseWriter, testReq)
+		testHandlerFunc.ServeHTTP(testResponseWriter, testReq)
 
 	}
 }

@@ -10,8 +10,8 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		link.HandleFunc(
-			func(w http.ResponseWriter, r *http.Request) {
+		link.Handler(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 				// adding link headers is done manually in the example.
 				// this better illustrates the workings of the push handler
@@ -40,8 +40,8 @@ func main() {
 				}
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-			},
-		),
+			}),
+		).ServeHTTP,
 	)
 
 	// json calls have been removed from pushed for now
