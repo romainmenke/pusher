@@ -9,7 +9,7 @@ import (
 func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if !CanPush(r) {
+		if !CanPush(w, r) {
 			handler(w, r)
 			return
 		}
@@ -21,12 +21,17 @@ func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 }
 
 // CanPush checks if the Request is Pushable.
-func CanPush(r *http.Request) bool {
+func CanPush(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method != "GET" {
 		return false
 	}
 
 	if r.Header.Get("Go-H2-Push") != "" {
+		return false
+	}
+
+	_, ok := w.(http.Pusher)
+	if !ok {
 		return false
 	}
 

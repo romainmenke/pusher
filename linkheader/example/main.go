@@ -20,6 +20,7 @@ func main() {
 		link.HandleFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 
+				w.Header().Set("Cache-Control", "public, max-age=86400")
 				linkHeaderMux.SetLinkHeaders(w, r)
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
@@ -27,7 +28,7 @@ func main() {
 		),
 	)
 
-	// json calls have been removed from pushed for now
+	// json calls have been removed from push for now
 	http.HandleFunc("/call.json",
 		apiCall,
 	)
