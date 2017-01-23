@@ -5,28 +5,33 @@ import (
 	"net/http"
 )
 
-// HandleFunc wraps an http.HandlerFunc with H2 Push functionality.
-func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+// Handler wraps an http.HandlerFunc with H2 Push functionality.
+func Handler(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if !CanPush(r) {
-			handler(w, r)
+		if !CanPush(w, r) {
+			handler.ServeHTTP(w, r)
 			return
 		}
 
-		var rw = responseWriter(w)
-		handler(rw, r)
+		var rw = &responseWriter{ResponseWriter: w}
+		handler.ServeHTTP(rw, r)
 
-	}
+	})
 }
 
 // CanPush checks if the Request is Pushable.
-func CanPush(r *http.Request) bool {
+func CanPush(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method != "GET" {
 		return false
 	}
 
 	if r.Header.Get("Go-H2-Push") != "" {
+		return false
+	}
+
+	_, ok := w.(http.Pusher)
+	if !ok {
 		return false
 	}
 
