@@ -3,8 +3,6 @@
 
 Note : this requires golang 1.8 (will be released 31/01)
 
-Note : wercker will fail until we update our CI flow to golang 1.8
-
 ---
 
 ### What :
