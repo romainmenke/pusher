@@ -1,12 +1,22 @@
 package link
 
-import "net/url"
+import "strings"
 
 func isAbsolute(p string) bool {
-	u, err := url.Parse(p)
-	if err != nil {
-		return false
+	if strings.Contains(p, "http://") || strings.Contains(p, "https://") || strings.Contains(p, "www.") {
+		return true
 	}
 
-	return u.IsAbs()
+	// if a '.' is found before '/' it is an absolute url
+	// requesting "stylesheet.css" instead of "/stylesheet.css" is not ok and not supported
+	for _, runeValue := range p {
+		switch runeValue {
+		case '.':
+			return true
+		case '/':
+			return false
+		}
+	}
+
+	return false
 }
