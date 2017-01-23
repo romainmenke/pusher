@@ -3,5 +3,4 @@ language: go
 go_import_path: github.com/romainmenke/pusher
 
 go:
-  - 1.x
   - master
