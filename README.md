@@ -13,6 +13,7 @@ The idea behind having multiple handlers is that H2 Push can also harm performan
 At the moment there is :
 - adaptive : an experimental auto push handler.
 - link : a push handler based on `Link` headers.
+- linkheader : a static file based linkheader placer.
 
 Planned :
 - parser : a push handler that parses response data to generate push frames
