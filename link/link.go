@@ -14,7 +14,7 @@ func HandleFunc(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		var rw = responseWriter(w)
+		var rw = &responseWriter{ResponseWriter: w}
 		handler(rw, r)
 
 	}

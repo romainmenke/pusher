@@ -23,8 +23,9 @@ func TestGetHeaders(t *testing.T) {
 func TestRead(t *testing.T) {
 
 	mux := &HeaderMux{
-		m:  make(map[string]muxEntry),
-		mu: &sync.RWMutex{},
+		m:     make(map[string]muxEntry),
+		links: make(map[string]struct{}),
+		mu:    &sync.RWMutex{},
 	}
 
 	err := mux.Read("./example/linkheaders.txt")
@@ -44,8 +45,9 @@ func TestRead(t *testing.T) {
 func setupTestMux() *HeaderMux {
 
 	mux := &HeaderMux{
-		m:  make(map[string]muxEntry),
-		mu: &sync.RWMutex{},
+		m:     make(map[string]muxEntry),
+		links: make(map[string]struct{}),
+		mu:    &sync.RWMutex{},
 	}
 
 	mux.Store("/", []string{
