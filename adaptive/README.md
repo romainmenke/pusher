@@ -1,7 +1,7 @@
 
 ### What :
 
-**adaptive** is an `http.HandlerFunc` to enable http2 Push Promises based on traffic.
+**adaptive** is an `http.Handler` to enable http2 Push Promises based on traffic.
 
 ### How :
 
@@ -38,7 +38,7 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		adaptive.HandlerFunc(http.FileServer(http.Dir("./cmd/static")).ServeHTTP),
+		adaptive.Handler(http.FileServer(http.Dir("./cmd/static"))).ServeHTTP,
 	)
 
 	err := http.ListenAndServeTLS(":4430", "cmd/localhost.crt", "cmd/localhost.key", nil)
