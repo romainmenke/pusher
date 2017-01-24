@@ -1,6 +1,11 @@
 package adaptive
 
-import "net/http"
+import (
+	"net/http"
+	"testing"
+
+	httpmiddlewarevet "github.com/fd/httpmiddlewarevet"
+)
 
 func ExampleHandler() {
 
@@ -13,4 +18,10 @@ func ExampleHandler() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Test(t *testing.T) {
+	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
+		return Handler(h)
+	})
 }

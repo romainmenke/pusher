@@ -10,16 +10,12 @@ import (
 func main() {
 
 	http.HandleFunc("/",
-		adaptive.HandlerFunc(
-			func(w http.ResponseWriter, r *http.Request) {
-				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-			},
-		),
+		adaptive.Handler(http.FileServer(http.Dir("./cmd/static"))).ServeHTTP,
 	)
 
 	// json calls have been removed from pushed for now
-	http.HandleFunc("/call.json",
-		adaptive.HandlerFunc(APICall),
+	http.HandleFunc("/",
+		adaptive.Handler(http.HandlerFunc(APICall)).ServeHTTP,
 	)
 
 	err := http.ListenAndServeTLS(":4430", "./adaptive/example/localhost.crt", "./adaptive/example/localhost.key", nil)

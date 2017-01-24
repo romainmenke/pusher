@@ -7,13 +7,13 @@ Note : this requires golang 1.8 (will be released 31/01)
 
 ### What :
 
-**pusher** is a collection of `http.HandlerFunc` to enable http2 Push Promises. Different strategies are implemented in different handlers.
+**pusher** is a collection of `http.Handler`'s to enable http2 Push Promises. Different strategies are implemented in different handlers.
 The idea behind having multiple handlers is that H2 Push can also harm performance if the wrong strategy is used.
 
 At the moment there is :
 - adaptive : an experimental auto push handler.
 - link : a push handler based on `Link` headers.
-- linkheader : a static file based linkheader placer.
+- linkheader : `Link` header placer.
 
 Planned :
 - parser : a push handler that parses response data to generate push frames
