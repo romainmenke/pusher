@@ -5,32 +5,10 @@ import (
 	"net/http"
 )
 
-type pushHandler struct {
-	handlerFunc http.HandlerFunc
-}
-
-func (h *pushHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.handlerFunc(w, r)
-}
-
-// Handler wraps a http.Handler.
+// Handler wraps an http.Handler.
 // It will automatically generate Push Promises
 func Handler(handler http.Handler) http.Handler {
-	return &pushHandler{
-		handlerFunc: newHandlerFunc(handler.ServeHTTP),
-	}
-}
-
-// HandlerFunc wraps a http.HandlerFunc.
-// It will automatically generate Push Promises
-func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
-	return newHandlerFunc(handlerFunc)
-}
-
-func newHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		defer handler(w, r)
 
 		setInitiatorForWriter(w, r)
 		if isAssetGet(r) {
@@ -39,6 +17,7 @@ func newHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.
 			} else { // regular fetch
 				addToPushMap(r, 1)
 			}
+			handler.ServeHTTP(w, r)
 			return
 		}
 
@@ -53,6 +32,8 @@ func newHandlerFunc(handler func(http.ResponseWriter, *http.Request)) func(http.
 				}
 			})
 		}
+
+		handler.ServeHTTP(w, r)
 
 	})
 }
