@@ -49,7 +49,7 @@ func main() {
 		apiCall,
 	)
 
-	err := http.ListenAndServeTLS(":4430", "./adaptive/example/localhost.crt", "./adaptive/example/localhost.key", nil)
+	err := http.ListenAndServeTLS(":4430", "./link/example/localhost.crt", "./link/example/localhost.key", nil)
 	if err != nil {
 		panic(err)
 	}

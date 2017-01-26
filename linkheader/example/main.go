@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/romainmenke/pusher/link"
 	"github.com/romainmenke/pusher/linkheader"
 )
 
@@ -17,23 +16,20 @@ func main() {
 	}
 
 	http.HandleFunc("/",
-		link.Handler(
-			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-				w.Header().Set("Cache-Control", "public, max-age=86400")
-				linkHeaderMux.SetLinkHeaders(w, r)
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+			linkHeaderMux.SetLinkHeaders(w, r)
 
-				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-			}),
-		).ServeHTTP,
+			http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
+		}),
 	)
 
-	// json calls have been removed from push for now
 	http.HandleFunc("/call.json",
 		apiCall,
 	)
 
-	err = http.ListenAndServeTLS(":4430", "./adaptive/example/localhost.crt", "./adaptive/example/localhost.key", nil)
+	err = http.ListenAndServe(":4430", nil)
 	if err != nil {
 		panic(err)
 	}

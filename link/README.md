@@ -1,7 +1,9 @@
 
 ### What :
 
-**link** has two functions :
+**link** is an `http.Handler` to enable http2 Push Promises based on `Link` headers.
+
+**link** also exposes two functions if you prefer integration in your own handlers:
 
 Determine H2 Push is possible.
 
@@ -44,40 +46,31 @@ import (
 	"github.com/romainmenke/pusher/link"
 )
 
-func HandlerFunc(handlerFunc http.HandlerFunc) http.HandlerFunc {
-	return newPushHandlerFunc(handlerFunc)
-}
+func main() {
 
-func newPushHandlerFunc(handler http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/",
+		link.Handler(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if !link.CanPush(w, r) {
-			handler(w, r)
-			return
-		}
+				// adding link headers is done manually in the example.
+				// this better illustrates the workings of the Handler
+				switch r.URL.RequestURI() {
+				case "/":
+					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+				default:
+				}
 
-		var p pusher
-		p = pusher{writer: w}
-		handler(&p, r)
+				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
+			}),
+		).ServeHTTP,
+	)
 
-	})
-}
+	err := http.ListenAndServeTLS(":4430", "./link/example/localhost.crt", "./link/example/localhost.key", nil)
+	if err != nil {
+		panic(err)
+	}
 
-type pusher struct {
-	writer http.ResponseWriter
-}
-
-func (p *pusher) Header() http.Header {
-	return p.writer.Header()
-}
-
-func (p *pusher) Write(b []byte) (int, error) {
-	return p.writer.Write(b)
-}
-
-func (p *pusher) WriteHeader(rc int) {
-	link.Push(p.Header(), p.writer.(http.Pusher))
-	p.writer.WriteHeader(rc)
 }
 ```
 
