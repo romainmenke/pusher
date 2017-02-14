@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/romainmenke/pusher.svg?branch=master)](https://travis-ci.org/romainmenke/pusher)
-[![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
 [![MiddlewareVet](http://middleware.vet/github.com/romainmenke/pusher.svg)](http://middleware.vet#github.com/romainmenke/pusher)
+[![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
 
 Note : this requires golang 1.8 (will be released 31/01)
 
