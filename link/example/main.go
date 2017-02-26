@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -45,17 +45,17 @@ func main() {
 				}
 
 				if hasPush {
-					fmt.Println(time.Now(), ": http start client req")
+					log.Println(time.Now(), ": http start client req")
 				} else {
-					fmt.Println(time.Now(), ": http start push req")
+					log.Println(time.Now(), ": http start push req")
 				}
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 
 				if hasPush {
-					fmt.Println(time.Now(), ": http end client req")
+					log.Println(time.Now(), ": http end client req")
 				} else {
-					fmt.Println(time.Now(), ": http end push req")
+					log.Println(time.Now(), ": http end push req")
 				}
 
 			}),
