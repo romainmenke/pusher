@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/romainmenke/pusher/link"
 )
@@ -12,6 +14,8 @@ func main() {
 	http.HandleFunc("/",
 		link.Handler(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+				hasPush := true
 
 				// adding link headers is done manually in the example.
 				// this better illustrates the workings of the push handler
@@ -37,9 +41,23 @@ func main() {
 					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
 					w.Header().Add("Link", "</call.json>; rel=preload;")
 				default:
+					hasPush = false
+				}
+
+				if hasPush {
+					fmt.Println(time.Now(), ": http start client req")
+				} else {
+					fmt.Println(time.Now(), ": http start push req")
 				}
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
+
+				if hasPush {
+					fmt.Println(time.Now(), ": http end client req")
+				} else {
+					fmt.Println(time.Now(), ": http end push req")
+				}
+
 			}),
 		).ServeHTTP,
 	)

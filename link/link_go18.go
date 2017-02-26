@@ -3,8 +3,10 @@
 package link
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 // Handler wraps an http.HandlerFunc with H2 Push functionality.
@@ -24,11 +26,12 @@ func Handler(handler http.Handler) http.Handler {
 
 // CanPush checks if the Request is Pushable.
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
+
 	if r.Method != "GET" {
 		return false
 	}
 
-	if r.Header.Get("Go-H2-Push") != "" {
+	if r.ProtoMajor < 2 {
 		return false
 	}
 
@@ -37,11 +40,17 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
+	if r.Header.Get("Go-H2-Push") != "" {
+		return false
+	}
+
 	return true
 }
 
 // InitiatePush parses Link Headers of a response to generate Push Frames.
 func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
+
+	fmt.Println(time.Now(), ": push")
 
 	linkHeaders, ok := header["Link"]
 	if !ok {

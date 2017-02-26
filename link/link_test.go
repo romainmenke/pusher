@@ -7,8 +7,6 @@ import (
 
 var testHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	// adding link headers is done manually in the example.
-	// this better illustrates the workings of the InitiatePush handler
 	switch r.URL.RequestURI() {
 	case "/":
 		w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
