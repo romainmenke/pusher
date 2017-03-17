@@ -16,7 +16,7 @@ func Handler(handler http.Handler) http.Handler {
 			return
 		}
 
-		var rw = &responseWriter{ResponseWriter: w}
+		var rw = &responseWriter{ResponseWriter: w, request: r}
 		handler.ServeHTTP(rw, r)
 
 	})
@@ -46,7 +46,7 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // InitiatePush parses Link Headers of a response to generate Push Frames.
-func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
+func InitiatePush(referer string, requestHeader http.Header, header http.Header, pusher http.Pusher) { // 0 allocs
 
 	linkHeaders, ok := header["Link"]
 	if !ok {
@@ -60,10 +60,16 @@ func InitiatePush(header http.Header, pusher http.Pusher) { // 0 allocs
 			continue
 		}
 
+		pHeader := http.Header{}
+
+		for k, v := range requestHeader {
+			pHeader[k] = v
+		}
+		pHeader.Set("Go-H2-Pusher", referer)
+		pHeader.Set("Go-H2-Pushed", link)
+
 		err := pusher.Push(link, &http.PushOptions{
-			Header: http.Header{
-				"Go-H2-Push": []string{link},
-			},
+			Header: pHeader,
 		})
 		if err != nil {
 			log.Println(err)

@@ -2,64 +2,49 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"time"
 
+	"github.com/romainmenke/gziphandler"
 	"github.com/romainmenke/pusher/link"
 )
 
 func main() {
 
-	http.HandleFunc("/",
-		link.Handler(
-			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/",
+		gziphandler.GzipHandler(
+			link.Handler(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-				hasPush := true
+					// adding link headers is done manually in the example.
+					// this better illustrates the workings of the push handler
+					switch r.URL.RequestURI() {
+					case "/":
+						w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+					case "/alpha.html":
+						w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+						w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+						w.Header().Add("Link", "</js/text_change.js>; rel=preload; as=script;")
+					case "/beta.html":
+						w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+						w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+						w.Header().Add("Link", "</img/gopher.png>; rel=preload; as=image;")
+						w.Header().Add("Link", "</img/gopher1.png>; rel=preload; as=image;")
+						w.Header().Add("Link", "</img/gopher2.png>; rel=preload; as=image;")
+						w.Header().Add("Link", "</img/gopher3.png>; rel=preload; as=image;")
+						w.Header().Add("Link", "</img/gopher4.png>; rel=preload; as=image;")
+						w.Header().Add("Link", "</img/gopher5.png>; rel=preload; as=image;")
+					case "/gamma.html":
+						w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+						w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+						w.Header().Add("Link", "</call.json>; rel=preload;")
+					default:
+					}
 
-				// adding link headers is done manually in the example.
-				// this better illustrates the workings of the push handler
-				switch r.URL.RequestURI() {
-				case "/":
-					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-				case "/alpha.html":
-					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-					w.Header().Add("Link", "</js/text_change.js>; rel=preload; as=script;")
-				case "/beta.html":
-					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-					w.Header().Add("Link", "</img/gopher.png>; rel=preload; as=image;")
-					w.Header().Add("Link", "</img/gopher1.png>; rel=preload; as=image;")
-					w.Header().Add("Link", "</img/gopher2.png>; rel=preload; as=image;")
-					w.Header().Add("Link", "</img/gopher3.png>; rel=preload; as=image;")
-					w.Header().Add("Link", "</img/gopher4.png>; rel=preload; as=image;")
-					w.Header().Add("Link", "</img/gopher5.png>; rel=preload; as=image;")
-				case "/gamma.html":
-					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-					w.Header().Add("Link", "</call.json>; rel=preload;")
-				default:
-					hasPush = false
-				}
+					http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 
-				if hasPush {
-					log.Println(time.Now(), ": http start client req")
-				} else {
-					log.Println(time.Now(), ": http start push req")
-				}
-
-				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-
-				if hasPush {
-					log.Println(time.Now(), ": http end client req")
-				} else {
-					log.Println(time.Now(), ": http end push req")
-				}
-
-			}),
-		).ServeHTTP,
+				}),
+			),
+		),
 	)
 
 	// json calls have been removed from pushed for now

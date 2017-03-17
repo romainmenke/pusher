@@ -9,6 +9,7 @@ import (
 
 type responseWriter struct {
 	http.ResponseWriter
+	request    *http.Request
 	statusCode int
 }
 
@@ -26,7 +27,7 @@ func (r *responseWriter) WriteHeader(s int) {
 	}
 
 	if r.statusCode/100 == 2 {
-		InitiatePush(r.Header(), r)
+		InitiatePush(r.request.URL.Path, r.request.Header, r.Header(), r)
 	}
 
 	r.ResponseWriter.WriteHeader(s)
