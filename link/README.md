@@ -1,21 +1,7 @@
 
-### What :
+### Link :
 
-**link** is an `http.Handler` to enable http2 Push Promises based on `Link` headers.
-
-**link** also exposes two functions if you prefer integration in your own handlers:
-
-Determine H2 Push is possible.
-
-`CanPush(w http.ResponseWriter, r *http.Request) bool`
-
-Push every URL in the Link Header with `rel=preload` and without `nopush`
-
-`Push(header http.Header, pusher http.Pusher)`
-
-----
-
-It is heavily based upon the cloudflare http2 Push implementation.
+It is heavily based upon the cloudflare H2 Push implementation.
 
 https://blog.cloudflare.com/announcing-support-for-http-2-server-push-2/
 
@@ -25,13 +11,20 @@ https://blog.cloudflare.com/http-2-server-push-with-multiple-assets-per-link-hea
 
 **link** inspects the response headers to generate Push Promise frames.
 
-### When is it great :
+### Why :
 
-- you have a golang proxy server
+You like speed.
 
-### How is it great :
+---
 
-Because **link** inspects the response headers, it leaves Push config over to the content server which gives you a lot of flexibility and control over what gets pushed.
+#### Stuff it does :
+
+- reads `Link` header values
+- generates H2 Push frames
+- respects `nopush`
+- prevents recursive pushes
+- is compatible with HTTP1.1 requests
+- copies request headers to generated Push requests
 
 ---
 
