@@ -20,9 +20,86 @@ func TestByPushable(t *testing.T) {
 
 	sortLinkHeaders(header)
 
-	for _, h := range header {
-		t.Log(h)
-		t.Log("   --", parseLinkHeader(h))
+	for index, h := range header {
+		switch index {
+		case 0:
+			if h != "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "/fonts/CutiveMono-Regular.ttf" {
+				t.Fail()
+			}
+		case 1:
+			if h != "</css/stylesheet.css>; rel=preload; as=style;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "/css/stylesheet.css" {
+				t.Fail()
+			}
+		case 2:
+			if h != "</js/text_change.js>; rel=preload; as=script;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "/js/text_change.js" {
+				t.Fail()
+			}
+		case 3:
+			if h != "</img/gopher.png>; rel=preload; as=image;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "/img/gopher.png" {
+				t.Fail()
+			}
+		case 4:
+			if h != "</call.json>; rel=preload;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "/call.json" {
+				t.Fail()
+			}
+		case 5:
+			if h != "<http://example.com/TheBook/chapter2>; rel=previous; title=previous chapter" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		case 6:
+			if h != "</>; rel=http://example.net/foo" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		case 7:
+			if h != "</TheBook/chapter2>; rel=previous; title*=UTF-8'de'letztes%20Kapitel" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		case 8:
+			if h != "</TheBook/chapter4>; rel=next; title*=UTF-8'de'n%c3%a4chstes%20Kapitel" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		case 9:
+			if h != "</img/gopher2.png>; rel=preload; as=image; nopush;" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		case 10:
+			if h != "<http://example.org/>; rel=start http://example.net/relation/other" {
+				t.Fail()
+			}
+			if parseLinkHeader(h) != "" {
+				t.Fail()
+			}
+		}
 	}
 
 }

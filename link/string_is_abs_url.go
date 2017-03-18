@@ -2,8 +2,11 @@ package link
 
 import "strings"
 
+// isAbsolute is a fast alternative for url.URL.IsAbs
+// IsAbs benches at 300ns, this is good enough and does it in 13ns
+// isAbsolute will also focus on the start of any url string, so url length will not have a large impact on this.
 func isAbsolute(p string) bool {
-	if strings.Contains(p, "http://") || strings.Contains(p, "https://") || strings.Contains(p, "www.") {
+	if strings.HasPrefix(p, "//") || strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return true
 	}
 

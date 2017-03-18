@@ -2,8 +2,6 @@
 [![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher.svg)](https://middleware.vet#github.com/romainmenke/pusher)
 [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
 
-Note : this requires golang 1.8 (will be released 31/01)
-
 ---
 
 ### What :
@@ -12,9 +10,8 @@ Note : this requires golang 1.8 (will be released 31/01)
 The idea behind having multiple handlers is that H2 Push can also harm performance if the wrong strategy is used.
 
 At the moment there is :
-- adaptive : an experimental auto push handler.
 - link : a push handler based on `Link` headers.
-- linkheader : `Link` header placer.
+- linkheader : `Link` header placer. -> broken, needs more work
 
 Planned :
 - parser : a push handler that parses response data to generate push frames

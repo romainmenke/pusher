@@ -82,7 +82,7 @@ func BenchmarkAllocC(b *testing.B) { // 5 allocs
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
 
-		InitiatePush("/", http.Header{}, testHeader, testResponseWriter)
+		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
 
 	}
 }
@@ -96,7 +96,7 @@ func BenchmarkAllocD(b *testing.B) { // 4 allocs
 
 		testHeader[LinkHeaderKey] = []string{}
 
-		InitiatePush("/", http.Header{}, testHeader, testResponseWriter)
+		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
 
 	}
 }
@@ -110,7 +110,7 @@ func BenchmarkAllocE(b *testing.B) { // 5 allocs
 
 		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;"}
 
-		InitiatePush("/", http.Header{}, testHeader, testResponseWriter)
+		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
 
 	}
 }
@@ -128,7 +128,7 @@ func BenchmarkAllocF(b *testing.B) { // 0 allocs
 
 	for n := 0; n < b.N; n++ {
 
-		InitiatePush("/", http.Header{}, testGlobalHeader, testGlobalResponseWriter)
+		InitiatePush(&responseWriter{})
 
 	}
 }

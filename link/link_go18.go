@@ -38,7 +38,7 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if r.Header.Get("Go-H2-Push") != "" {
+	if r.Header.Get("Go-H2-Pushed") != "" {
 		return false
 	}
 
@@ -46,9 +46,18 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // InitiatePush parses Link Headers of a response to generate Push Frames.
-func InitiatePush(referer string, requestHeader http.Header, header http.Header, pusher http.Pusher) { // 0 allocs
+func InitiatePush(w *responseWriter) { // 0 allocs
 
-	linkHeaders, ok := header["Link"]
+	if w == nil {
+		return
+	}
+
+	pusher, ok := w.ResponseWriter.(http.Pusher)
+	if !ok {
+		return
+	}
+
+	linkHeaders, ok := w.Header()["Link"]
 	if !ok {
 		return
 	}
@@ -62,10 +71,13 @@ func InitiatePush(referer string, requestHeader http.Header, header http.Header,
 
 		pHeader := http.Header{}
 
-		for k, v := range requestHeader {
-			pHeader[k] = v
+		if w.request != nil {
+			for k, v := range w.request.Header {
+				pHeader[k] = v
+			}
+			pHeader.Set("Go-H2-Pusher", w.request.URL.Path)
 		}
-		pHeader.Set("Go-H2-Pusher", referer)
+
 		pHeader.Set("Go-H2-Pushed", link)
 
 		err := pusher.Push(link, &http.PushOptions{
@@ -76,7 +88,7 @@ func InitiatePush(referer string, requestHeader http.Header, header http.Header,
 		}
 	}
 
-	header["Link"] = toLink
-	header["Go-H2-Pushed"] = toPush
+	w.ResponseWriter.Header()["Link"] = toLink
+	w.ResponseWriter.Header()["Go-H2-Pushed"] = toPush
 
 }

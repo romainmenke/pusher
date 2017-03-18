@@ -13,41 +13,41 @@ type responseWriter struct {
 	statusCode int
 }
 
-func (r *responseWriter) Write(b []byte) (int, error) {
-	if r.statusCode == 0 {
-		r.statusCode = 200
+func (w *responseWriter) Write(b []byte) (int, error) {
+	if w.statusCode == 0 {
+		w.statusCode = 200
 	}
 
-	return r.ResponseWriter.Write(b)
+	return w.ResponseWriter.Write(b)
 }
 
-func (r *responseWriter) WriteHeader(s int) {
-	if r.statusCode == 0 {
-		r.statusCode = s
+func (w *responseWriter) WriteHeader(s int) {
+	if w.statusCode == 0 {
+		w.statusCode = s
 	}
 
-	if r.statusCode/100 == 2 {
-		InitiatePush(r.request.URL.Path, r.request.Header, r.Header(), r)
+	if w.statusCode/100 == 2 {
+		InitiatePush(w)
 	}
 
-	r.ResponseWriter.WriteHeader(s)
+	w.ResponseWriter.WriteHeader(s)
 }
 
-func (r *responseWriter) Flush() {
-	flusher, ok := r.ResponseWriter.(http.Flusher)
+func (w *responseWriter) Flush() {
+	flusher, ok := w.ResponseWriter.(http.Flusher)
 	if ok && flusher != nil {
 		flusher.Flush()
 	} else {
-		log.Printf("Failed flush(%T)", r.ResponseWriter)
+		log.Printf("Failed flush(%T)", w.ResponseWriter)
 	}
 }
 
-func (r *responseWriter) CloseNotify() <-chan bool {
-	return r.ResponseWriter.(http.CloseNotifier).CloseNotify()
+func (w *responseWriter) CloseNotify() <-chan bool {
+	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
 }
 
-func (r *responseWriter) Push(target string, opts *http.PushOptions) error {
-	pusher, ok := r.ResponseWriter.(http.Pusher)
+func (w *responseWriter) Push(target string, opts *http.PushOptions) error {
+	pusher, ok := w.ResponseWriter.(http.Pusher)
 	if ok && pusher != nil {
 		return pusher.Push(target, opts)
 	}
