@@ -101,27 +101,24 @@ func TestByPushable(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func BenchmarkByPushableSort(b *testing.B) {
-
 	for n := 0; n < b.N; n++ {
-
 		sortLinkHeaders(testHeaderLink())
-
 	}
-
 }
 
 func BenchmarkLinkHeaderSplit(b *testing.B) {
-
 	for n := 0; n < b.N; n++ {
-
 		splitLinkHeaders(testHeaderLink())
-
 	}
+}
 
+func BenchmarkTestHeader(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		testHeaderLink()
+	}
 }
 
 var testHeaderLink = func() []string {
