@@ -1,134 +1,120 @@
+// +build go1.8
+
 package link
 
 import (
+	"crypto/tls"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-var testHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func TestHandler(t *testing.T) {
 
-	switch r.URL.RequestURI() {
-	case "/":
-		w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-		w.Header().Add("link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-	default:
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	h := Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, ok := w.(http.Pusher)
+		if !ok {
+			t.Fatal("bad test, not a pusher")
+		}
+	}))
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
 	}
+	client.Get(server.URL)
+}
 
-	w.Write([]byte{})
-})
+func BenchmarkHandler(b *testing.B) {
 
-func BenchmarkLinkHandler(b *testing.B) { // 11 allocs
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
 
-	for n := 0; n < b.N; n++ {
-
-		testReq, testErr := http.NewRequest("GET", "/", nil)
-		if testErr != nil {
-			b.Fatal(testErr)
+	h := Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.RequestURI() {
+		case "/":
+			w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+		default:
 		}
 
-		testResponseWriter := newTestWriter()
-		testHandlerFunc := Handler(testHandler)
+		w.Write([]byte{})
+	}))
 
-		testHandlerFunc.ServeHTTP(testResponseWriter, testReq)
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
 
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
 	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
 }
 
-func BenchmarkRegularHandler(b *testing.B) { // 9 allocs
+func BenchmarkDefaultHandler(b *testing.B) {
 
-	for n := 0; n < b.N; n++ {
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
 
-		testReq, testErr := http.NewRequest("GET", "/", nil)
-		if testErr != nil {
-			b.Fatal(testErr)
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.RequestURI() {
+		case "/":
+			w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+		default:
 		}
 
-		testResponseWriter := newTestWriter()
-		testHandlerFunc := testHandler
+		w.Write([]byte{})
+	})
 
-		testHandlerFunc(testResponseWriter, testReq)
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
 
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
 	}
-}
 
-const LinkHeaderKey = "Link"
+	b.ResetTimer()
 
-func BenchmarkAllocA(b *testing.B) { // 3 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		testHeader := http.Header{}
-		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;"}
-
-	}
-}
-
-func BenchmarkAllocB(b *testing.B) { // 0 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		testResponseWriter := newTestWriter()
-		testResponseWriter.WriteHeader(200)
-
-	}
-}
-
-func BenchmarkAllocC(b *testing.B) { // 5 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		testResponseWriter := newTestWriter()
-		testHeader := http.Header{}
-
-		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
-
-		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
-
-	}
-}
-
-func BenchmarkAllocD(b *testing.B) { // 4 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		testResponseWriter := newTestWriter()
-		testHeader := http.Header{}
-
-		testHeader[LinkHeaderKey] = []string{}
-
-		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
-
-	}
-}
-
-func BenchmarkAllocE(b *testing.B) { // 5 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		testResponseWriter := newTestWriter()
-		testHeader := http.Header{}
-
-		testHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;"}
-
-		InitiatePush(&responseWriter{ResponseWriter: testResponseWriter})
-
-	}
-}
-
-var testGlobalResponseWriter *testWriter
-var testGlobalHeader http.Header
-
-func init() {
-	testGlobalResponseWriter = newTestWriter()
-	testGlobalHeader = http.Header{}
-	testGlobalHeader[LinkHeaderKey] = []string{"</css/stylesheet.css>; rel=preload; as=style;", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;", "</blah/foo>"}
-}
-
-func BenchmarkAllocF(b *testing.B) { // 0 allocs
-
-	for n := 0; n < b.N; n++ {
-
-		InitiatePush(&responseWriter{})
-
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
 }

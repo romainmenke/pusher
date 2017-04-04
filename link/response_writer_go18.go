@@ -13,6 +13,19 @@ type responseWriter struct {
 	statusCode int
 }
 
+func (w *responseWriter) reset() *responseWriter {
+	w.statusCode = 0
+	w.request = nil
+	w.ResponseWriter = nil
+
+	return w
+}
+
+func (w *responseWriter) close() {
+	w.reset()
+	writerPool.Put(w)
+}
+
 func (w *responseWriter) Write(b []byte) (int, error) {
 	if w.statusCode == 0 {
 		w.statusCode = 200

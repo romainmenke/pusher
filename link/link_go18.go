@@ -16,9 +16,10 @@ func Handler(handler http.Handler) http.Handler {
 			return
 		}
 
-		var rw = &responseWriter{ResponseWriter: w, request: r}
-		handler.ServeHTTP(rw, r)
+		var rw = getResponseWriter(w, r)
 
+		handler.ServeHTTP(rw, r)
+		rw.close()
 	})
 }
 
