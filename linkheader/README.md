@@ -7,7 +7,7 @@
 
 ### How :
 
-**link** reads from a static a file containing paths and corresponding headers. It uses the same routing patterns as `http.HandleFunc`.
+**link** reads from a static a file containing paths and corresponding headers. It uses a `http.ServeMux` to match routes.
 
 ### When is it great :
 
@@ -33,26 +33,17 @@ import (
 
 func main() {
 
-	linkHeaderMux := linkheader.New()
-	err := linkHeaderMux.Read("./linkheader/example/linkheaders.txt")
-	if err != nil {
-		panic(err)
-	}
+	http.Handle("/",
+		linkheader.Handler(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	http.HandleFunc("/",
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Cache-Control", "public, max-age=86400")
 
-			w.Header().Set("Cache-Control", "public, max-age=86400")
-			linkHeaderMux.SetLinkHeaders(w, r)
-
-			http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-		}),
+				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
+			}),
+			"./linkheader/example/linkheaders.txt",
+		),
 	)
-
-	err = http.ListenAndServe(":4430", nil)
-	if err != nil {
-		panic(err)
-	}
 
 }
 ```
