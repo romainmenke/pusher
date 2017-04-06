@@ -2,23 +2,36 @@ package linkheader
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func Handler(handler http.Handler, path string) http.Handler {
 
-	options, _ := Read(path)
+	pathMap, headerMap, err := read(path)
+	if err != nil {
+		return handler
+	}
+
 	mux := http.NewServeMux()
 
-	for path := range options {
+	for path := range pathMap {
 		localPath := path
 		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println(localPath, r.URL.String())
 
-			for _, header := range options[localPath] {
+			if r.Method != "GET" {
+				handler.ServeHTTP(w, r)
+				return
+			}
+
+			if _, found := headerMap[r.URL.Path]; found {
+				handler.ServeHTTP(w, r)
+				return
+			}
+
+			for _, header := range pathMap[localPath] {
 				w.Header().Add("Link", header)
 			}
 
@@ -31,13 +44,14 @@ func Handler(handler http.Handler, path string) http.Handler {
 	return mux
 }
 
-func Read(filePath string) (map[string][]string, error) {
+func read(filePath string) (map[string][]string, map[string]struct{}, error) {
 
-	out := make(map[string][]string)
+	pathMap := make(map[string][]string)
+	headerMap := make(map[string]struct{})
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer file.Close()
 
@@ -55,11 +69,12 @@ func Read(filePath string) (map[string][]string, error) {
 		}
 		if currentPath != "" && len(txt) > 0 && txt[:1] == "<" {
 			currentHeaders = append(currentHeaders, txt)
+			headerMap[parseLinkHeader(txt)] = struct{}{}
 			continue
 		}
 		if txt == "" {
 			if currentPath != "" && len(currentHeaders) > 0 {
-				out[currentPath] = currentHeaders
+				pathMap[currentPath] = currentHeaders
 			}
 			currentPath = ""
 			currentHeaders = []string{}
@@ -68,11 +83,39 @@ func Read(filePath string) (map[string][]string, error) {
 
 	if err := scanner.Err(); err != nil {
 		if err == io.EOF {
-			return out, nil
+			return pathMap, headerMap, nil
 		}
-		return nil, err
+		return nil, nil, err
 	}
 
-	return out, nil
+	return pathMap, headerMap, nil
 
+}
+
+func parseLinkHeader(h string) string {
+
+	var linkStart int
+	var linkEnd int
+
+RUNELOOP:
+	for index, runeValue := range h {
+		switch runeValue {
+		case '<':
+			linkStart = index + 1
+		case '>':
+			linkEnd = index
+			break RUNELOOP
+		case ';':
+			linkStart = 0
+			linkEnd = 0
+		}
+	}
+
+	if linkStart == 0 || linkEnd == 0 {
+		return ""
+	}
+
+	res := strings.TrimSpace(h[linkStart:linkEnd])
+
+	return res
 }
