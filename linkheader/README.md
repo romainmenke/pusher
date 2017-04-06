@@ -41,7 +41,7 @@ func main() {
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			}),
-			"./linkheader/example/linkheaders.txt",
+			linkheader.PathOption("./linkheader/example/linkheaders.txt"),
 		),
 	)
 

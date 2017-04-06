@@ -8,9 +8,31 @@ import (
 	"strings"
 )
 
-func Handler(handler http.Handler, path string) http.Handler {
+type settings struct {
+	path string
+}
 
-	pathMap, headerMap, err := read(path)
+type Option func(*settings)
+
+func PathOption(path string) func(*settings) {
+	return func(s *settings) {
+		s.path = path
+	}
+}
+
+func Handler(handler http.Handler, options ...Option) http.Handler {
+
+	s := &settings{}
+
+	for _, option := range options {
+		option(s)
+	}
+
+	if s.path == "" {
+		return handler
+	}
+
+	pathMap, headerMap, err := read(s.path)
 	if err != nil {
 		return handler
 	}
