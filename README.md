@@ -11,7 +11,7 @@ The idea behind having multiple handlers is that H2 Push can also harm performan
 
 At the moment there is :
 - link : a push handler based on `Link` headers.
-- linkheader : `Link` header placer. -> broken, needs more work
+- linkheader : `Link` header placer.
 
 Planned :
 - parser : a push handler that parses response data to generate push frames
