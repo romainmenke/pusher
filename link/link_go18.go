@@ -2,9 +2,14 @@
 
 package link
 
-import (
-	"log"
-	"net/http"
+import "net/http"
+
+const (
+	GoH2Pusher    = "Go-H2-Pusher"
+	GoH2Pushed    = "Go-H2-Pushed"
+	XForwardedFor = "X-Forwarded-For"
+	Link          = "Link"
+	Get           = "GET"
 )
 
 // Handler wraps an http.Handler with H2 Push functionality.
@@ -17,16 +22,17 @@ func Handler(handler http.Handler) http.Handler {
 		}
 
 		var rw = getResponseWriter(w, r)
+		defer rw.close()
 
 		handler.ServeHTTP(rw, r)
-		rw.close()
+
 	})
 }
 
 // CanPush checks if the Request is Pushable and the ResponseWriter supports H2 Push.
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
-	if r.Method != "GET" {
+	if r.Method != Get {
 		return false
 	}
 
@@ -39,11 +45,11 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if r.Header.Get("X-Forwarded-For") != "" {
+	if r.Header.Get(XForwardedFor) != "" {
 		return false
 	}
 
-	if r.Header.Get("Go-H2-Pushed") != "" {
+	if r.Header.Get(GoH2Pushed) != "" || r.Header.Get(GoH2Pusher) != "" {
 		return false
 	}
 
@@ -62,7 +68,7 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	linkHeaders, ok := w.Header()["Link"]
+	linkHeaders, ok := w.Header()[Link]
 	if !ok {
 		return
 	}
@@ -74,26 +80,30 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 			continue
 		}
 
-		pHeader := http.Header{}
+		pHeader := make(http.Header, len(w.request.Header)+2)
 
 		if w.request != nil {
 			for k, v := range w.request.Header {
 				pHeader[k] = v
 			}
-			pHeader.Set("Go-H2-Pusher", w.request.URL.Path)
+			pHeader.Set(GoH2Pusher, w.request.URL.RequestURI())
 		}
 
-		pHeader.Set("Go-H2-Pushed", link)
+		pHeader.Set(GoH2Pushed, link)
 
 		err := pusher.Push(link, &http.PushOptions{
 			Header: pHeader,
 		})
-		if err != nil {
-			log.Println(err)
-		}
+		_ = err
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 	}
 
-	w.ResponseWriter.Header()["Link"] = toLink
-	w.ResponseWriter.Header()["Go-H2-Pushed"] = toPush
+	// leave this in for now
+	_ = toLink
+	// w.ResponseWriter.Header()[Link] = toLink
+
+	w.ResponseWriter.Header()[GoH2Pushed] = toPush
 
 }

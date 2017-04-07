@@ -2,11 +2,12 @@ package link
 
 import "strings"
 
-func parseLinkHeader(h string) string {
+const (
+	NoPush  = "nopush"
+	Preload = "rel=preload"
+)
 
-	if !strings.Contains(h, "rel=preload") {
-		return ""
-	}
+func parseLinkHeader(h string) string {
 
 	var linkStart int
 	var linkEnd int
@@ -29,7 +30,11 @@ RUNELOOP:
 		return ""
 	}
 
-	if strings.Contains(h[linkEnd+1:], "nopush") {
+	if !strings.Contains(h[linkEnd+1:], Preload) {
+		return ""
+	}
+
+	if strings.Contains(h[linkEnd+1:], NoPush) {
 		return ""
 	}
 
