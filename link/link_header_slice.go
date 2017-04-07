@@ -19,6 +19,10 @@ func splitLinkHeaders(s []string) ([]string, []string) {
 	var trueCounter int
 	for i := range s {
 		if parseLinkHeader(s[i]) != "" {
+			if trueCounter >= headerLimit {
+				break
+			}
+
 			swap(s, trueCounter, i)
 			trueCounter++
 		}

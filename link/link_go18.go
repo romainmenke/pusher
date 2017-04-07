@@ -74,11 +74,10 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	if len(linkHeaders) > headerLimit {
-		linkHeaders = linkHeaders[:headerLimit]
-	}
-
 	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
+	if len(toPush) == 0 {
+		return
+	}
 
 PUSH_LOOP:
 	for index, link := range toPush {
