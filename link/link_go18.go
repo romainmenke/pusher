@@ -5,7 +5,6 @@ package link
 import "net/http"
 
 const (
-	GoH2Pusher    = "Go-H2-Pusher"
 	GoH2Pushed    = "Go-H2-Pushed"
 	XForwardedFor = "X-Forwarded-For"
 	Link          = "Link"
@@ -49,17 +48,13 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if r.Header.Get(GoH2Pushed) != "" || r.Header.Get(GoH2Pusher) != "" {
-		return false
-	}
-
 	return true
 }
 
 // InitiatePush parses Link Headers of a response to generate Push Frames.
 func InitiatePush(w *responseWriter) { // 0 allocs
 
-	if w == nil {
+	if w == nil || w.request == nil {
 		return
 	}
 
@@ -80,19 +75,8 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 			continue
 		}
 
-		pHeader := make(http.Header, len(w.request.Header)+2)
-
-		if w.request != nil {
-			for k, v := range w.request.Header {
-				pHeader[k] = v
-			}
-			pHeader.Set(GoH2Pusher, w.request.URL.RequestURI())
-		}
-
-		pHeader.Set(GoH2Pushed, link)
-
 		err := pusher.Push(link, &http.PushOptions{
-			Header: pHeader,
+			Header: w.request.Header,
 		})
 		_ = err
 		// if err != nil {
