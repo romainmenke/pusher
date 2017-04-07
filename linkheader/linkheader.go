@@ -2,6 +2,7 @@ package linkheader
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -12,14 +13,18 @@ type settings struct {
 	path string
 }
 
+// Option -> Functional Options : Awesome
 type Option func(*settings)
 
-func PathOption(path string) func(*settings) {
+// RulesFileOption is used to pass the location of your Rules File to the Handler func
+func RulesFileOption(path string) func(*settings) {
 	return func(s *settings) {
 		s.path = path
 	}
 }
 
+// Handler wraps an http.Handler.
+// It sets Link Headers for paths declared in the Rules File.
 func Handler(handler http.Handler, options ...Option) http.Handler {
 
 	s := &settings{}
@@ -37,11 +42,15 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		return handler
 	}
 
+	fmt.Println(pathMap)
+
 	mux := http.NewServeMux()
 
 	for path := range pathMap {
 		localPath := path
 		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			fmt.Println(localPath, pathMap[r.URL.Path])
 
 			if r.Method != "GET" {
 				handler.ServeHTTP(w, r)
@@ -89,18 +98,22 @@ func read(filePath string) (map[string][]string, map[string]struct{}, error) {
 			currentPath = txt
 			continue
 		}
+		if txt == "-" {
+			continue
+		}
 		if currentPath != "" && len(txt) > 0 && txt[:1] == "<" {
 			currentHeaders = append(currentHeaders, txt)
 			headerMap[parseLinkHeader(txt)] = struct{}{}
 			continue
 		}
 		if txt == "" {
-			if currentPath != "" && len(currentHeaders) > 0 {
+			if currentPath != "" {
 				pathMap[currentPath] = currentHeaders
 			}
 			currentPath = ""
 			currentHeaders = []string{}
 		}
+
 	}
 
 	if err := scanner.Err(); err != nil {

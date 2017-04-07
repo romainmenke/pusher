@@ -18,6 +18,9 @@
 </img/gopher5.png>; rel=preload; as=image;
 
 /gamma.html
+-
+
+/gamma-b.html
 </css/stylesheet.css>; rel=preload; as=style;
 </fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;
 </call.json>; rel=preload;

@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// Handler wraps an http.HandlerFunc with H2 Push functionality.
+// Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -23,7 +23,7 @@ func Handler(handler http.Handler) http.Handler {
 	})
 }
 
-// CanPush checks if the Request is Pushable.
+// CanPush checks if the Request is Pushable and the ResponseWriter supports H2 Push.
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	if r.Method != "GET" {
@@ -36,6 +36,10 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	_, ok := w.(http.Pusher)
 	if !ok {
+		return false
+	}
+
+	if r.Header.Get("X-Forwarded-For") != "" {
 		return false
 	}
 
