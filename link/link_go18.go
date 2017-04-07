@@ -11,6 +11,11 @@ const (
 	Get           = "GET"
 )
 
+var (
+	http2ErrRecursivePush    = "http2: recursive push not allowed"
+	http2ErrPushLimitReached = "http2: push would exceed peer's SETTINGS_MAX_CONCURRENT_STREAMS"
+)
+
 // Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +75,8 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 
 	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
 
-	for _, link := range toPush {
+PUSH_LOOP:
+	for index, link := range toPush {
 		if link == "" {
 			continue
 		}
@@ -78,10 +84,17 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		err := pusher.Push(link, &http.PushOptions{
 			Header: w.request.Header,
 		})
-		_ = err
-		// if err != nil {
-		// 	log.Println(err)
-		// }
+		if err != nil {
+
+			toPush = append(toPush[:index], toPush[index+1:]...)
+
+			switch err.Error() {
+			case http2ErrPushLimitReached:
+				break PUSH_LOOP
+			case http2ErrRecursivePush:
+				break PUSH_LOOP
+			}
+		}
 	}
 
 	// leave this in for now
