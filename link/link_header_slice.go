@@ -29,11 +29,8 @@ func splitLinkHeaders(s []string) ([]string, []string) {
 
 func splitLinkHeadersAndParse(s []string) ([]string, []string) {
 	var trueCounter int
-	var parsed string
 	for i := range s {
-		parsed = parseLinkHeader(s[i])
-		if parsed != "" {
-			s[i] = parsed
+		if parseLinkHeader(s[i]) != "" {
 			swap(s, trueCounter, i)
 			trueCounter++
 		}

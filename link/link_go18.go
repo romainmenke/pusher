@@ -9,6 +9,7 @@ const (
 	XForwardedFor = "X-Forwarded-For"
 	Link          = "Link"
 	Get           = "GET"
+	headerLimit   = 50
 )
 
 var (
@@ -73,20 +74,22 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
+	if len(linkHeaders) > headerLimit {
+		linkHeaders = linkHeaders[:headerLimit]
+	}
+
 	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
 
 PUSH_LOOP:
 	for index, link := range toPush {
-		if link == "" {
-			continue
-		}
 
-		err := pusher.Push(link, &http.PushOptions{
+		err := pusher.Push(parseLinkHeader(link), &http.PushOptions{
 			Header: w.request.Header,
 		})
 		if err != nil {
 
 			toPush = append(toPush[:index], toPush[index+1:]...)
+			toLink = append(toLink, link)
 
 			switch err.Error() {
 			case http2ErrPushLimitReached:
@@ -97,10 +100,7 @@ PUSH_LOOP:
 		}
 	}
 
-	// leave this in for now
-	_ = toLink
-	// w.ResponseWriter.Header()[Link] = toLink
-
+	w.ResponseWriter.Header()[Link] = toLink
 	w.ResponseWriter.Header()[GoH2Pushed] = toPush
 
 }

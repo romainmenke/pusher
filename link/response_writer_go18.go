@@ -11,9 +11,9 @@ type responseWriter struct {
 }
 
 func (w *responseWriter) reset() *responseWriter {
-	w.statusCode = 0
 	w.request = nil
 	w.ResponseWriter = nil
+	w.statusCode = 0
 
 	return w
 }
