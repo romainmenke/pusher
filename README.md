@@ -6,26 +6,29 @@
 
 ### What :
 
-**pusher** is a collection of `http.Handler`'s to enable http2 Push Promises. Different strategies are implemented in different handlers.
-The idea behind having multiple handlers is that H2 Push can also harm performance if the wrong strategy is used.
+**pusher** is a collection of `http.Handler`'s to easily enable HTTP2 Push.
 
-At the moment there is :
-- link : a push handler based on `Link` headers.
-- linkheader : `Link` header placer.
-
-Planned :
-- parser : a push handler that parses response data to generate push frames
+- [link](https://github.com/romainmenke/pusher/tree/master/link) : a H2 Push handler based on `Link` headers.
+- [linkheader](https://github.com/romainmenke/pusher/tree/master/linkheader) : `Link` header placer.
 
 Checkout the sub-packages for more details.
 
----
-
-Response without Push :
-
-![without push](https://raw.githubusercontent.com/romainmenke/pusher/master/example/readme/before_push.png)
-
-Response with Push :
-
-![with push](https://raw.githubusercontent.com/romainmenke/pusher/master/example/readme/after_push.png)
-
 ----
+
+You probably already saw this code snippet from the [go blog](https://blog.golang.org/h2push) :
+
+```
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        if pusher, ok := w.(http.Pusher); ok {
+            // Push is supported.
+            if err := pusher.Push("/app.js", nil); err != nil {
+                log.Printf("Failed to push: %v", err)
+            }
+        }
+        // ...
+    })
+```
+
+But obviously you don't want to hard code pushes for all your assets, especially in case of a proxy. That is where the [link](https://github.com/romainmenke/pusher/tree/master/link) package comes in. It reads the response headers and looks for `Link` headers. If found it transforms these into Pushes. This approach is based on how Cloudflare enables H2 Push.
+
+If you have a go server and don't have an easy method to add these `Link` headers you can checkout the [linkheader](https://github.com/romainmenke/pusher/tree/master/linkheader) package. It does all the heavy lifting for you.

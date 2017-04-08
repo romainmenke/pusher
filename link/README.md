@@ -6,7 +6,7 @@
 
 ### Link :
 
-It is heavily based upon the cloudflare H2 Push implementation.
+It is heavily based upon the Cloudflare H2 Push implementation.
 
 https://blog.cloudflare.com/announcing-support-for-http-2-server-push-2/
 
@@ -14,7 +14,7 @@ https://blog.cloudflare.com/http-2-server-push-with-multiple-assets-per-link-hea
 
 ### How :
 
-**link** inspects the response headers to generate Push Promise frames.
+**link** inspects the response headers to generate Push Promises.
 
 ### Why :
 
@@ -24,12 +24,11 @@ You like speed.
 
 #### Stuff it does :
 
-- reads `Link` header values
-- generates H2 Push frames
+- generates H2 Push frames based on `Link` headers
 - respects `nopush`
 - prevents recursive pushes
 - is compatible with HTTP1.1 requests
-- copies request headers to generated Push requests
+- plays nice when behind a proxy (No Pushes when `X-Forwarded-For` is set)
 
 ---
 
@@ -46,28 +45,7 @@ import (
 
 func main() {
 
-	http.HandleFunc("/",
-		link.Handler(
-			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-				// adding link headers is done manually in the example.
-				// this better illustrates the workings of the Handler
-				switch r.URL.RequestURI() {
-				case "/":
-					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
-					w.Header().Add("Link", "</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
-				default:
-				}
-
-				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-			}),
-		).ServeHTTP,
-	)
-
-	err := http.ListenAndServeTLS(":4430", "./link/example/localhost.crt", "./link/example/localhost.key", nil)
-	if err != nil {
-		panic(err)
-	}
+		link.Handler(YourHandlerHere)
 
 }
 ```

@@ -11,11 +11,7 @@
 
 ### When is it great :
 
-- you are lazy and want to easily add `Link` headers.
-
-### Why :
-
-For our single page web apps we use a golang static file server hosted on Heroku, which is not HTTP/2.0 capable. We use a proxy to upgrade to HTTP/2.0 and wanted to enable H2 Push.
+- you want to easily add `Link` headers.
 
 ---
 
@@ -37,9 +33,8 @@ func main() {
 		linkheader.Handler(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-				w.Header().Set("Cache-Control", "public, max-age=86400")
-
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
+				
 			}),
 			linkheader.PathOption("./linkheader/example/linkheaders.txt"),
 		),
