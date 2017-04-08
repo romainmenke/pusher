@@ -4,20 +4,6 @@ package link
 
 import "net/http"
 
-const (
-	GoH2Pushed        = "Go-H2-Pushed"
-	XForwardedFor     = "X-Forwarded-For"
-	Link              = "Link"
-	Get               = "GET"
-	headerAmountLimit = 50
-	headerLengthLimit = 1500
-)
-
-var (
-	http2ErrRecursivePush    = "http2: recursive push not allowed"
-	http2ErrPushLimitReached = "http2: push would exceed peer's SETTINGS_MAX_CONCURRENT_STREAMS"
-)
-
 // Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
