@@ -1,6 +1,9 @@
 package link
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestByPushable(t *testing.T) {
 	// https://tools.ietf.org/html/rfc5988
@@ -105,23 +108,143 @@ func TestByPushable(t *testing.T) {
 
 func BenchmarkByPushableSort(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		sortLinkHeaders(testHeaderLink())
+		sortLinkHeaders(testHeaderLinkA())
 	}
 }
 
 func BenchmarkLinkHeaderSplit(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		splitLinkHeaders(testHeaderLink())
+		splitLinkHeaders(testHeaderLinkA())
 	}
 }
 
-func BenchmarkTestHeader(b *testing.B) {
+func BenchmarkSplitLinkHeadersAndParse_10_Links(b *testing.B) {
+	data := testHeaderLinkNumberScale(10)
+	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
-		testHeaderLink()
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
 	}
 }
 
-var testHeaderLink = func() []string {
+func BenchmarkSplitLinkHeadersAndParse_100_Links(b *testing.B) {
+	data := testHeaderLinkNumberScale(100)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_1000_Links(b *testing.B) {
+	data := testHeaderLinkNumberScale(1000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_10000_Links(b *testing.B) {
+	data := testHeaderLinkNumberScale(10000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_10000_Links_Baseline(b *testing.B) {
+	data := testHeaderLinkNumberScale(10000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_10_Chars(b *testing.B) {
+	data := testHeaderLinkLengthScale(10)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_100__Chars(b *testing.B) {
+	data := testHeaderLinkLengthScale(100)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_1000__Chars(b *testing.B) {
+	data := testHeaderLinkLengthScale(1000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_10000__Chars(b *testing.B) {
+	data := testHeaderLinkLengthScale(10000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+
+		splitLinkHeadersAndParse(tmp)
+	}
+}
+
+func BenchmarkSplitLinkHeadersAndParse_10000__Chars_Baseline(b *testing.B) {
+	data := testHeaderLinkLengthScale(10000)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+
+		tmp := make([]string, len(data))
+		copy(tmp, data)
+	}
+}
+
+var testHeaderLinkA = func() []string {
 	return []string{
 		"<http://example.com/TheBook/chapter2>; rel=previous; title=previous chapter",
 		"</>; rel=http://example.net/foo",
@@ -135,4 +258,24 @@ var testHeaderLink = func() []string {
 		"</img/gopher2.png>; rel=preload; as=image; nopush;",
 		"</call.json>; rel=preload;",
 	}
+}
+
+var testHeaderLinkNumberScale = func(amount int) []string {
+	headers := make([]string, amount)
+	for index := 0; index < amount; index++ {
+		headers[index] = fmt.Sprintf("</img/gopher%d.png>; rel=preload; as=image;", index)
+	}
+	return headers
+}
+
+var testHeaderLinkLengthScale = func(length int) []string {
+	headers := make([]string, 10)
+	for index := 0; index < 10; index++ {
+		var part = ""
+		for l := 0; l < length; l++ {
+			part += "z"
+		}
+		headers[index] = fmt.Sprintf("</img/gopher-%s.png>; rel=preload; as=image;", part)
+	}
+	return headers
 }
