@@ -4,6 +4,7 @@ package link_test
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -41,7 +42,7 @@ func TestHandler(t *testing.T) {
 	client.Get(server.URL)
 }
 
-func BenchmarkHandlerA(b *testing.B) {
+func BenchmarkHandler(b *testing.B) {
 
 	var (
 		server *httptest.Server
@@ -74,7 +75,7 @@ func BenchmarkHandlerA(b *testing.B) {
 	})
 }
 
-func BenchmarkHandlerB(b *testing.B) {
+func BenchmarkHandler_10(b *testing.B) {
 
 	var (
 		server *httptest.Server
@@ -82,10 +83,15 @@ func BenchmarkHandlerB(b *testing.B) {
 		client = &http.Client{Transport: rt}
 	)
 
+	links := make([]string, 10)
+	for i := 0; i < 10; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
 	h := link.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
-			w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+			w.Header()["Link"] = links
 		default:
 		}
 
@@ -114,7 +120,142 @@ func BenchmarkHandlerB(b *testing.B) {
 	})
 }
 
-func BenchmarkDefaultHandlerA(b *testing.B) {
+func BenchmarkHandler_100(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 100)
+	for i := 0; i < 100; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := link.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	}))
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkHandler_1000(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 1000)
+	for i := 0; i < 1000; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := link.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	}))
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkHandler_10000(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 10000)
+	for i := 0; i < 10000; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := link.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	}))
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkDefaultHandler(b *testing.B) {
 
 	var (
 		server *httptest.Server
@@ -147,7 +288,7 @@ func BenchmarkDefaultHandlerA(b *testing.B) {
 	})
 }
 
-func BenchmarkDefaultHandlerB(b *testing.B) {
+func BenchmarkDefaultHandler_10(b *testing.B) {
 
 	var (
 		server *httptest.Server
@@ -155,10 +296,150 @@ func BenchmarkDefaultHandlerB(b *testing.B) {
 		client = &http.Client{Transport: rt}
 	)
 
+	links := make([]string, 10)
+	for i := 0; i < 10; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
-			w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	})
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkDefaultHandler_100(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 100)
+	for i := 0; i < 100; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	})
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkDefaultHandler_1000(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 1000)
+	for i := 0; i < 1000; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	})
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
+}
+
+func BenchmarkDefaultHandler_10000(b *testing.B) {
+
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	links := make([]string, 10000)
+	for i := 0; i < 10000; i++ {
+		links[i] = fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i)
+	}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
 		default:
 		}
 

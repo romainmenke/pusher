@@ -75,32 +75,37 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
-	if len(toPush) == 0 {
-		return
-	}
-
+	var splitIndex int
 PUSH_LOOP:
-	for index, link := range toPush {
+	for index, link := range linkHeaders {
 
-		err := pusher.Push(parseLinkHeader(link), &http.PushOptions{
-			Header: w.request.Header,
-		})
-		if err != nil {
+		if index > headerAmountLimit {
+			break PUSH_LOOP
+		}
 
-			toPush = append(toPush[:index], toPush[index+1:]...)
-			toLink = append(toLink, link)
+		pushLink := parseLinkHeader(link)
+		if pushLink != "" {
 
-			switch err.Error() {
-			case http2ErrPushLimitReached:
-				break PUSH_LOOP
-			case http2ErrRecursivePush:
-				break PUSH_LOOP
+			err := pusher.Push(pushLink, &http.PushOptions{
+				Header: w.request.Header,
+			})
+			if err != nil {
+				switch err.Error() {
+				case http2ErrPushLimitReached:
+					break PUSH_LOOP
+				case http2ErrRecursivePush:
+					break PUSH_LOOP
+				default:
+					continue PUSH_LOOP
+				}
 			}
+
+			linkHeaders[splitIndex], linkHeaders[index] = linkHeaders[index], linkHeaders[splitIndex]
+			splitIndex++
 		}
 	}
 
-	w.ResponseWriter.Header()[Link] = toLink
-	w.ResponseWriter.Header()[GoH2Pushed] = toPush
+	w.ResponseWriter.Header()[Link] = linkHeaders[splitIndex:]
+	w.ResponseWriter.Header()[GoH2Pushed] = linkHeaders[:splitIndex]
 
 }
