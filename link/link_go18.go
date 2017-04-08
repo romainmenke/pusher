@@ -5,11 +5,12 @@ package link
 import "net/http"
 
 const (
-	GoH2Pushed    = "Go-H2-Pushed"
-	XForwardedFor = "X-Forwarded-For"
-	Link          = "Link"
-	Get           = "GET"
-	headerLimit   = 50
+	GoH2Pushed        = "Go-H2-Pushed"
+	XForwardedFor     = "X-Forwarded-For"
+	Link              = "Link"
+	Get               = "GET"
+	headerAmountLimit = 50
+	headerLengthLimit = 1500
 )
 
 var (

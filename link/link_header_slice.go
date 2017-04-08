@@ -19,7 +19,7 @@ func splitLinkHeaders(s []string) ([]string, []string) {
 	var trueCounter int
 	for i := range s {
 		if parseLinkHeader(s[i]) != "" {
-			if trueCounter >= headerLimit {
+			if trueCounter > headerAmountLimit {
 				break
 			}
 
@@ -35,7 +35,7 @@ func splitLinkHeadersAndParse(s []string) ([]string, []string) {
 	var trueCounter int
 	for i := range s {
 		if parseLinkHeader(s[i]) != "" {
-			if trueCounter >= headerLimit {
+			if trueCounter > headerAmountLimit {
 				break
 			}
 

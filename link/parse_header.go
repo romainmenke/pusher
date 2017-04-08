@@ -12,6 +12,10 @@ func parseLinkHeader(h string) string {
 	var linkStart int
 	var linkEnd int
 
+	if len(h) > headerLengthLimit {
+		return ""
+	}
+
 RUNELOOP:
 	for index, runeValue := range h {
 		switch runeValue {
@@ -24,6 +28,7 @@ RUNELOOP:
 			linkStart = 0
 			linkEnd = 0
 		}
+
 	}
 
 	if linkStart == 0 || linkEnd == 0 {
