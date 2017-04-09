@@ -6,19 +6,17 @@
   <img src="https://cloud.githubusercontent.com/assets/11521496/24838540/070645b2-1d4a-11e7-9c39-900371d5fda3.png" width="250"/>
 </p>
 
----
+# Link
 
-### Link :
-
-It is heavily based upon the Cloudflare H2 Push implementation.
+Heavily based upon the Cloudflare H2 Push implementation.
 
 https://blog.cloudflare.com/announcing-support-for-http-2-server-push-2/
 
 https://blog.cloudflare.com/http-2-server-push-with-multiple-assets-per-link-header/
 
-### How :
+### How it works :
 
-**link** inspects the response headers to generate Push Promises.
+**link** inspects response headers to generate Push Promises.
 
 ### Why :
 

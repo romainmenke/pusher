@@ -6,9 +6,7 @@
   <img src="https://cloud.githubusercontent.com/assets/11521496/24838540/070645b2-1d4a-11e7-9c39-900371d5fda3.png" width="250"/>
 </p>
 
----
-
-### What :
+# H2 Push Handlers
 
 **pusher** is a collection of `http.Handler`'s to easily enable HTTP2 Push.
 
