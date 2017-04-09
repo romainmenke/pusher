@@ -5,8 +5,8 @@ const (
 	XForwardedFor            = "X-Forwarded-For"
 	Link                     = "Link"
 	Get                      = "GET"
-	headerAmountLimit        = 50
-	headerLengthLimit        = 1500
+	headerAmountLimit        = 64
+	headerLengthLimit        = 2048
 	http2ErrRecursivePush    = "http2: recursive push not allowed"
 	http2ErrPushLimitReached = "http2: push would exceed peer's SETTINGS_MAX_CONCURRENT_STREAMS"
 )

@@ -165,12 +165,106 @@ func BenchmarkDefaultHandler_1000(b *testing.B) {
 	DefaultHandlerBenchmarkFactory(1000)(b)
 }
 
-func BenchmarkHandler_10000(b *testing.B) {
-	HandlerBenchmarkFactory(10000)(b)
+func BenchmarkHandler_WorstCase(b *testing.B) {
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	header := ""
+	charLimit := (2048 - len("</>; rel=preload;"))
+	for y := 0; y < charLimit; y++ {
+		header += "a"
+	}
+	header = fmt.Sprintf("</%s>; rel=preload;", header)
+
+	links := make([]string, 64)
+	for i := 0; i < 64; i++ {
+		links[i] = header
+	}
+
+	h := link.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	}))
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
 }
 
-func BenchmarkDefaultHandler_10000(b *testing.B) {
-	DefaultHandlerBenchmarkFactory(10000)(b)
+func BenchmarkDefaultHandler_WorstCase(b *testing.B) {
+	var (
+		server *httptest.Server
+		rt     = &http.Transport{}
+		client = &http.Client{Transport: rt}
+	)
+
+	header := ""
+	charLimit := (2048 - len("</>; rel=preload;"))
+	for y := 0; y < charLimit; y++ {
+		header += "a"
+	}
+	header = fmt.Sprintf("</%s>; rel=preload;", header)
+
+	links := make([]string, 64)
+	for i := 0; i < 64; i++ {
+		links[i] = header
+	}
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/":
+			w.Header()["Link"] = links
+		default:
+		}
+
+		w.Write([]byte{})
+	})
+
+	server = httptest.NewUnstartedServer(h)
+	server.TLS = &tls.Config{NextProtos: []string{"h2", "HTTP/1.1"}}
+	server.StartTLS()
+
+	{ // setup default config
+		// fails because there is no server running at that address (but used to setup HTTP/2)
+		client.Get("http://127.0.0.1:1/")
+		if rt.TLSClientConfig == nil {
+			rt.TLSClientConfig = &tls.Config{}
+		}
+		rt.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client.Get(server.URL)
+		}
+	})
 }
 
 func BenchmarkCanPush(b *testing.B) {
