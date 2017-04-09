@@ -1,5 +1,13 @@
+<p align="center">
+  [![Build Status](https://travis-ci.org/romainmenke/pusher.svg?branch=master)](https://travis-ci.org/romainmenke/pusher)
+  [![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher.svg)](https://middleware.vet#github.com/romainmenke/pusher)
+  [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher/linkheader)
+</p>
+<p align="center">
+  <img src="https://cloud.githubusercontent.com/assets/11521496/24838540/070645b2-1d4a-11e7-9c39-900371d5fda3.png" width="250"/>
+</p>
 
-### What :
+# LinkHeader
 
 **linkheader** makes it easy to add `Link` headers in a go server.
 
@@ -87,3 +95,5 @@ https://w3c.github.io/preload/
 | `<iframe>, <frame>` | `<link rel=preload as=document href=...>` |
 
 ---
+
+The Go gopher was designed by Renee French. (http://reneefrench.blogspot.com/)
