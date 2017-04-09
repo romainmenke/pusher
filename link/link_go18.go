@@ -2,10 +2,7 @@
 
 package link
 
-import (
-	"log"
-	"net/http"
-)
+import "net/http"
 
 // Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
@@ -17,16 +14,17 @@ func Handler(handler http.Handler) http.Handler {
 		}
 
 		var rw = getResponseWriter(w, r)
+		defer rw.close()
 
 		handler.ServeHTTP(rw, r)
-		rw.close()
+
 	})
 }
 
 // CanPush checks if the Request is Pushable and the ResponseWriter supports H2 Push.
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
-	if r.Method != "GET" {
+	if r.Method != Get {
 		return false
 	}
 
@@ -39,11 +37,7 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if r.Header.Get("X-Forwarded-For") != "" {
-		return false
-	}
-
-	if r.Header.Get("Go-H2-Pushed") != "" {
+	if r.Header.Get(XForwardedFor) != "" {
 		return false
 	}
 
@@ -53,7 +47,7 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 // InitiatePush parses Link Headers of a response to generate Push Frames.
 func InitiatePush(w *responseWriter) { // 0 allocs
 
-	if w == nil {
+	if w == nil || w.request == nil {
 		return
 	}
 
@@ -62,38 +56,42 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	linkHeaders, ok := w.Header()["Link"]
+	linkHeaders, ok := w.Header()[Link]
 	if !ok {
 		return
 	}
 
-	toPush, toLink := splitLinkHeadersAndParse(linkHeaders)
+	var splitIndex int
+PUSH_LOOP:
+	for index, link := range linkHeaders {
 
-	for _, link := range toPush {
-		if link == "" {
-			continue
+		if index > headerAmountLimit {
+			break PUSH_LOOP
 		}
 
-		pHeader := http.Header{}
+		pushLink := parseLinkHeader(link)
+		if pushLink != "" {
 
-		if w.request != nil {
-			for k, v := range w.request.Header {
-				pHeader[k] = v
+			err := pusher.Push(pushLink, &http.PushOptions{
+				Header: w.request.Header,
+			})
+			if err != nil {
+				switch err.Error() {
+				case http2ErrPushLimitReached:
+					break PUSH_LOOP
+				case http2ErrRecursivePush:
+					break PUSH_LOOP
+				default:
+					continue PUSH_LOOP
+				}
 			}
-			pHeader.Set("Go-H2-Pusher", w.request.URL.Path)
-		}
 
-		pHeader.Set("Go-H2-Pushed", link)
-
-		err := pusher.Push(link, &http.PushOptions{
-			Header: pHeader,
-		})
-		if err != nil {
-			log.Println(err)
+			linkHeaders[splitIndex], linkHeaders[index] = linkHeaders[index], linkHeaders[splitIndex]
+			splitIndex++
 		}
 	}
 
-	w.ResponseWriter.Header()["Link"] = toLink
-	w.ResponseWriter.Header()["Go-H2-Pushed"] = toPush
+	w.ResponseWriter.Header()[Link] = linkHeaders[splitIndex:]
+	w.ResponseWriter.Header()[GoH2Pushed] = linkHeaders[:splitIndex]
 
 }

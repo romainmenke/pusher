@@ -15,7 +15,7 @@ func main() {
 
 				// adding link headers is done manually in the example.
 				// this better illustrates the workings of the push handler
-				switch r.URL.RequestURI() {
+				switch r.URL.Path {
 				case "/":
 					w.Header().Add("Link", "</css/stylesheet.css>; rel=preload; as=style;")
 				case "/alpha.html":

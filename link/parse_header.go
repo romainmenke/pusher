@@ -4,12 +4,12 @@ import "strings"
 
 func parseLinkHeader(h string) string {
 
-	if !strings.Contains(h, "rel=preload") {
-		return ""
-	}
-
 	var linkStart int
 	var linkEnd int
+
+	if len(h) > headerLengthLimit {
+		return ""
+	}
 
 RUNELOOP:
 	for index, runeValue := range h {
@@ -23,13 +23,18 @@ RUNELOOP:
 			linkStart = 0
 			linkEnd = 0
 		}
+
 	}
 
 	if linkStart == 0 || linkEnd == 0 {
 		return ""
 	}
 
-	if strings.Contains(h[linkEnd+1:], "nopush") {
+	if !strings.Contains(h[linkEnd+1:], Preload) {
+		return ""
+	}
+
+	if strings.Contains(h[linkEnd+1:], NoPush) {
 		return ""
 	}
 

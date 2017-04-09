@@ -2,10 +2,7 @@
 
 package link
 
-import (
-	"log"
-	"net/http"
-)
+import "net/http"
 
 type responseWriter struct {
 	http.ResponseWriter
@@ -14,9 +11,9 @@ type responseWriter struct {
 }
 
 func (w *responseWriter) reset() *responseWriter {
-	w.statusCode = 0
 	w.request = nil
 	w.ResponseWriter = nil
+	w.statusCode = 0
 
 	return w
 }
@@ -50,8 +47,6 @@ func (w *responseWriter) Flush() {
 	flusher, ok := w.ResponseWriter.(http.Flusher)
 	if ok && flusher != nil {
 		flusher.Flush()
-	} else {
-		log.Printf("Failed flush(%T)", w.ResponseWriter)
 	}
 }
 
