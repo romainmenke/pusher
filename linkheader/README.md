@@ -34,7 +34,7 @@ func main() {
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
-				
+
 			}),
 			linkheader.PathOption("./linkheader/example/linkheaders.txt"),
 		),
@@ -42,6 +42,39 @@ func main() {
 
 }
 ```
+
+---
+
+rules :
+
+- start with the path you want to match
+- add `Link` header values
+- end with an empty line
+- `-` is used to ignore a path. This allows you to match `/foo` but not `/foo/no-match`
+
+```
+/
+</css/stylesheet.css>; rel=preload; as=style;
+
+/foo
+</css/stylesheet.css>; rel=preload; as=style;
+
+/foo/no-match
+-
+```
+
+---
+
+note :
+
+Links described in `Link` header values are ignored:
+
+```
+/
+</css/stylesheet.css>; rel=preload; as=style;
+```
+
+`/css/stylesheet.css` would also match the `/` rule, but no `Link` headers will be set for this request.
 
 ---
 

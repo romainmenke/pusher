@@ -2,11 +2,11 @@ package linkheader
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
 type settings struct {
@@ -28,6 +28,7 @@ func RulesFileOption(path string) func(*settings) {
 func Handler(handler http.Handler, options ...Option) http.Handler {
 
 	s := &settings{}
+	m := &sync.RWMutex{}
 
 	for _, option := range options {
 		option(s)
@@ -42,31 +43,28 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		return handler
 	}
 
-	fmt.Println(pathMap)
-
 	mux := http.NewServeMux()
 
 	for path := range pathMap {
 		localPath := path
 		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			fmt.Println(localPath, pathMap[r.URL.Path])
+			defer handler.ServeHTTP(w, r)
 
 			if r.Method != "GET" {
-				handler.ServeHTTP(w, r)
 				return
 			}
 
+			m.RLock()
+			defer m.RUnlock()
+
 			if _, found := headerMap[r.URL.Path]; found {
-				handler.ServeHTTP(w, r)
 				return
 			}
 
 			for _, header := range pathMap[localPath] {
 				w.Header().Add("Link", header)
 			}
-
-			handler.ServeHTTP(w, r)
 		})
 
 		mux.Handle(path, h)
@@ -150,7 +148,5 @@ RUNELOOP:
 		return ""
 	}
 
-	res := strings.TrimSpace(h[linkStart:linkEnd])
-
-	return res
+	return strings.TrimSpace(h[linkStart:linkEnd])
 }
