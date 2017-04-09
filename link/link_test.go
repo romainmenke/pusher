@@ -42,7 +42,7 @@ func TestHandler(t *testing.T) {
 	client.Get(server.URL)
 }
 
-func HandlerBenchmarkFactory(length int) func(b *testing.B) {
+func handlerBenchmarkFactory(length int) func(b *testing.B) {
 	return func(b *testing.B) {
 		var (
 			server *httptest.Server
@@ -88,7 +88,7 @@ func HandlerBenchmarkFactory(length int) func(b *testing.B) {
 	}
 }
 
-func DefaultHandlerBenchmarkFactory(length int) func(b *testing.B) {
+func defaultHandlerBenchmarkFactory(length int) func(b *testing.B) {
 	return func(b *testing.B) {
 		var (
 			server *httptest.Server
@@ -135,34 +135,34 @@ func DefaultHandlerBenchmarkFactory(length int) func(b *testing.B) {
 }
 
 func BenchmarkHandler(b *testing.B) {
-	HandlerBenchmarkFactory(0)(b)
+	handlerBenchmarkFactory(0)(b)
 }
 
 func BenchmarkDefaultHandler(b *testing.B) {
-	DefaultHandlerBenchmarkFactory(0)(b)
+	defaultHandlerBenchmarkFactory(0)(b)
 }
 
 func BenchmarkHandler_10(b *testing.B) {
-	HandlerBenchmarkFactory(10)(b)
+	handlerBenchmarkFactory(10)(b)
 }
 
 func BenchmarkDefaultHandler_10(b *testing.B) {
-	DefaultHandlerBenchmarkFactory(10)(b)
+	defaultHandlerBenchmarkFactory(10)(b)
 }
 
 func BenchmarkHandler_100(b *testing.B) {
-	HandlerBenchmarkFactory(100)(b)
+	handlerBenchmarkFactory(100)(b)
 }
 
 func BenchmarkDefaultHandler_100(b *testing.B) {
-	DefaultHandlerBenchmarkFactory(100)(b)
+	defaultHandlerBenchmarkFactory(100)(b)
 }
 
 func BenchmarkHandler_1000(b *testing.B) {
-	HandlerBenchmarkFactory(1000)(b)
+	handlerBenchmarkFactory(1000)(b)
 }
 func BenchmarkDefaultHandler_1000(b *testing.B) {
-	DefaultHandlerBenchmarkFactory(1000)(b)
+	defaultHandlerBenchmarkFactory(1000)(b)
 }
 
 func BenchmarkHandler_WorstCase(b *testing.B) {
