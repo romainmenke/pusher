@@ -2,24 +2,16 @@ package link
 
 import "testing"
 
+var absoluteRes = false
+
 func BenchmarkIsAbsoluteA(b *testing.B) {
-
-	res := false
-
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			res = isAbsolute("/fonts/CutiveMono-Regular.ttf")
-		}
-	})
+	for n := 0; n < b.N; n++ {
+		absoluteRes = isAbsolute("/fonts/CutiveMono-Regular.ttf")
+	}
 }
 
 func BenchmarkIsAbsoluteB(b *testing.B) {
-
-	res := false
-
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			res = isAbsolute("https://www.foo,com/fonts/CutiveMono-Regular.ttf")
-		}
-	})
+	for n := 0; n < b.N; n++ {
+		absoluteRes = isAbsolute("https://www.foo,com/fonts/CutiveMono-Regular.ttf")
+	}
 }
