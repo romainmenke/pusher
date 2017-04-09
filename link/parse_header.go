@@ -2,11 +2,6 @@ package link
 
 import "strings"
 
-const (
-	NoPush  = "nopush"
-	Preload = "rel=preload"
-)
-
 func parseLinkHeader(h string) string {
 
 	var linkStart int
