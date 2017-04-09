@@ -47,7 +47,7 @@ import (
 
 func main() {
 
-		link.Handler(YourHandlerHere)
+	link.Handler(YourHandlerHere)
 
 }
 ```
@@ -73,3 +73,5 @@ https://w3c.github.io/preload/
 | `<iframe>, <frame>` | `<link rel=preload as=document href=...>` |
 
 ---
+
+The Go gopher was designed by Renee French. (http://reneefrench.blogspot.com/)
