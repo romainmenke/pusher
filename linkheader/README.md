@@ -1,17 +1,7 @@
 
 ### What :
 
-**linkheader** makes it easy to add `Link` headers for golang static file servers.
-
-----
-
-### How :
-
-**link** reads from a static a file containing paths and corresponding headers. It uses a `http.ServeMux` to match routes.
-
-### When is it great :
-
-- you want to easily add `Link` headers.
+**linkheader** makes it easy to add `Link` headers in a go server.
 
 ---
 
