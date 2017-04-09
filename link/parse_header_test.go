@@ -64,26 +64,26 @@ func TestParseLinkHeaderBadB(t *testing.T) {
 var parseLinkHeaderRes = ""
 
 func BenchmarkParseLinkHeader_1(b *testing.B) {
-	parseLinkHeader_BenchFactory(0)(b)
+	parseLinkHeaderBenchFactory(0)(b)
 }
 
 func BenchmarkParseLinkHeader_10(b *testing.B) {
-	parseLinkHeader_BenchFactory(10)(b)
+	parseLinkHeaderBenchFactory(10)(b)
 }
 
 func BenchmarkParseLinkHeader_100(b *testing.B) {
-	parseLinkHeader_BenchFactory(100)(b)
+	parseLinkHeaderBenchFactory(100)(b)
 }
 
 func BenchmarkParseLinkHeader_1000(b *testing.B) {
-	parseLinkHeader_BenchFactory(1000)(b)
+	parseLinkHeaderBenchFactory(1000)(b)
 }
 
 func BenchmarkParseLinkHeader_10000(b *testing.B) {
-	parseLinkHeader_BenchFactory(10000)(b)
+	parseLinkHeaderBenchFactory(10000)(b)
 }
 
-func parseLinkHeader_BenchFactory(length int) func(b *testing.B) {
+func parseLinkHeaderBenchFactory(length int) func(b *testing.B) {
 	return func(b *testing.B) {
 		testString := ""
 		for i := 0; i < length; i++ {

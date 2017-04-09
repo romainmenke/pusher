@@ -267,6 +267,86 @@ func BenchmarkDefaultHandler_WorstCase(b *testing.B) {
 	})
 }
 
+func TestCanPush(t *testing.T) {
+	request := &http.Request{
+		Method:     "GET",
+		ProtoMajor: 2,
+		Header:     http.Header{},
+	}
+	var writer http.ResponseWriter
+	writer = &testWriter{
+		&httptest.ResponseRecorder{},
+	}
+
+	if !link.CanPush(writer, request) {
+		t.Fail()
+	}
+}
+
+func TestCanPush_H1(t *testing.T) {
+	request := &http.Request{
+		Method:     "GET",
+		ProtoMajor: 1,
+		Header:     http.Header{},
+	}
+	var writer http.ResponseWriter
+	writer = &testWriter{
+		&httptest.ResponseRecorder{},
+	}
+
+	if link.CanPush(writer, request) {
+		t.Fail()
+	}
+}
+
+func TestCanPush_Forwarded(t *testing.T) {
+	request := &http.Request{
+		Method:     "GET",
+		ProtoMajor: 2,
+		Header: http.Header{
+			"X-Forwarded-For": []string{"foo"},
+		},
+	}
+	var writer http.ResponseWriter
+	writer = &testWriter{
+		&httptest.ResponseRecorder{},
+	}
+
+	if link.CanPush(writer, request) {
+		t.Fail()
+	}
+}
+
+func TestCanPush_NoPusher(t *testing.T) {
+	request := &http.Request{
+		Method:     "GET",
+		ProtoMajor: 2,
+		Header:     http.Header{},
+	}
+	var writer http.ResponseWriter
+	writer = &httptest.ResponseRecorder{}
+
+	if link.CanPush(writer, request) {
+		t.Fail()
+	}
+}
+
+func TestCanPush_NoGet(t *testing.T) {
+	request := &http.Request{
+		Method:     "POST",
+		ProtoMajor: 2,
+		Header:     http.Header{},
+	}
+	var writer http.ResponseWriter
+	writer = &testWriter{
+		&httptest.ResponseRecorder{},
+	}
+
+	if link.CanPush(writer, request) {
+		t.Fail()
+	}
+}
+
 func BenchmarkCanPush(b *testing.B) {
 
 	request := &http.Request{
