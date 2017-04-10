@@ -173,7 +173,7 @@ func BenchmarkHandler_WorstCase(b *testing.B) {
 	)
 
 	header := ""
-	charLimit := (2048 - len("</>; rel=preload;"))
+	charLimit := (1024 - len("</>; rel=preload;"))
 	for y := 0; y < charLimit; y++ {
 		header += "a"
 	}
@@ -224,7 +224,7 @@ func BenchmarkDefaultHandler_WorstCase(b *testing.B) {
 	)
 
 	header := ""
-	charLimit := (2048 - len("</>; rel=preload;"))
+	charLimit := (1024 - len("</>; rel=preload;"))
 	for y := 0; y < charLimit; y++ {
 		header += "a"
 	}
