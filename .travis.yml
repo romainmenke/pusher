@@ -7,3 +7,9 @@ go:
 - 1.7.x
 - 1.8.x
 - master
+
+script:
+  - bash ./go.test.sh
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
