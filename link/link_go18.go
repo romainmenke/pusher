@@ -102,14 +102,17 @@ PUSH_LOOP:
 			// Handle Push err.
 			if err != nil {
 				switch err.Error() {
+
 				// No more pushes can be send.
 				case http2ErrPushLimitReached:
 					break PUSH_LOOP
-					// No more pushes can be send.
+
+				// No more pushes can be send.
 				case http2ErrRecursivePush:
 					break PUSH_LOOP
+
+				// Something went wrong, but maybe nothing serious. Try another Push.
 				default:
-					// Something went wrong, but maybe nothing serious. Try another Push.
 					continue PUSH_LOOP
 				}
 			}
