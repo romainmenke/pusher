@@ -75,7 +75,7 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	// splitIndex is used to seperate Link and Push values without creating a new []string{}.
+	// splitIndex is used to separate Link and Push values without creating a new []string{}.
 	var splitIndex int
 
 PUSH_LOOP:
