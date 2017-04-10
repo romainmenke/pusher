@@ -6,7 +6,7 @@ const (
 	// GoH2Pushed is the header key used to transmit Pushed Link header values
 	GoH2Pushed               = "Go-H2-Pushed"
 	headerAmountLimit        = 64
-	headerLengthLimit        = 2048
+	headerLengthLimit        = 1024
 	http2ErrPushLimitReached = "http2: push would exceed peer's SETTINGS_MAX_CONCURRENT_STREAMS"
 	http2ErrRecursivePush    = "http2: recursive push not allowed"
 	// Link Header Key
