@@ -63,12 +63,6 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
-	// Cast the wrapper http.ResponseWriter to a http.Pusher.
-	pusher, ok := w.ResponseWriter.(http.Pusher)
-	if !ok {
-		return
-	}
-
 	// Get the Link Header values from the Response Header.
 	linkHeaders, ok := w.Header()[Link]
 	if !ok {
@@ -83,7 +77,7 @@ PUSH_LOOP:
 
 		// Limit the number of values parsed.
 		// This is not based on how many are eventually pushed.
-		if index > headerAmountLimit {
+		if index >= headerAmountLimit {
 			break PUSH_LOOP
 		}
 
@@ -95,7 +89,7 @@ PUSH_LOOP:
 
 			// Attempt to send a Push.
 			// Pass the original Request Headers by reference.
-			err := pusher.Push(pushLink, &http.PushOptions{
+			err := w.Push(pushLink, &http.PushOptions{
 				Header: w.request.Header,
 			})
 
