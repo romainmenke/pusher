@@ -275,7 +275,7 @@ func TestCanPush(t *testing.T) {
 	}
 	var writer http.ResponseWriter
 	writer = &testWriter{
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	if !link.CanPush(writer, request) {
@@ -291,7 +291,7 @@ func TestCanPush_H1(t *testing.T) {
 	}
 	var writer http.ResponseWriter
 	writer = &testWriter{
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	if link.CanPush(writer, request) {
@@ -309,7 +309,7 @@ func TestCanPush_Forwarded(t *testing.T) {
 	}
 	var writer http.ResponseWriter
 	writer = &testWriter{
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	if link.CanPush(writer, request) {
@@ -324,7 +324,7 @@ func TestCanPush_NoPusher(t *testing.T) {
 		Header:     http.Header{},
 	}
 	var writer http.ResponseWriter
-	writer = &httptest.ResponseRecorder{}
+	writer = httptest.NewRecorder()
 
 	if link.CanPush(writer, request) {
 		t.Fail()
@@ -339,7 +339,7 @@ func TestCanPush_NoGet(t *testing.T) {
 	}
 	var writer http.ResponseWriter
 	writer = &testWriter{
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	if link.CanPush(writer, request) {
@@ -358,7 +358,7 @@ func BenchmarkCanPush(b *testing.B) {
 	var writer http.ResponseWriter
 
 	writer = &testWriter{
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	b.ResetTimer()

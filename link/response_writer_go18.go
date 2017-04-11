@@ -52,7 +52,7 @@ func (w *responseWriter) WriteHeader(s int) {
 	}
 
 	// Call WriteHeader on the wrapper http.ResponseWriter
-	w.ResponseWriter.WriteHeader(s)
+	w.ResponseWriter.WriteHeader(w.statusCode)
 }
 
 // Flush sends any buffered data to the client.
