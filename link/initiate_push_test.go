@@ -21,7 +21,7 @@ func TestInitatePush(t *testing.T) {
 	testW := &testWriter{
 		[]string{},
 		nil,
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	writer := &responseWriter{
@@ -58,7 +58,7 @@ func TestInitatePush_AbsoluteLink(t *testing.T) {
 	testW := &testWriter{
 		[]string{},
 		nil,
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	writer := &responseWriter{
@@ -91,7 +91,7 @@ func TestInitatePush_Mixed(t *testing.T) {
 	testW := &testWriter{
 		[]string{},
 		nil,
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 	}
 
 	writer := &responseWriter{
@@ -152,7 +152,7 @@ func TestInitiatePushLinkLimit(t *testing.T) {
 		&testWriter{
 			[]string{},
 			nil,
-			&httptest.ResponseRecorder{},
+			httptest.NewRecorder(),
 		},
 		request,
 	)
@@ -204,7 +204,7 @@ func TestInitiatePushNoPusher(t *testing.T) {
 	}
 
 	writer := getResponseWriter(
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 		request,
 	)
 
@@ -229,7 +229,7 @@ func TestInitiatePushNoPusher(t *testing.T) {
 	// nil request
 
 	writer = getResponseWriter(
-		&httptest.ResponseRecorder{},
+		httptest.NewRecorder(),
 		nil,
 	)
 
@@ -266,7 +266,7 @@ func TestInitiatePushRandomErr(t *testing.T) {
 	writer := getResponseWriter(
 		&testWriterErr{
 			0,
-			&httptest.ResponseRecorder{},
+			httptest.NewRecorder(),
 		},
 		request,
 	)
@@ -307,7 +307,7 @@ func TestInitiatePushRecursiveErr(t *testing.T) {
 	writer := getResponseWriter(
 		&testWriterRecursiveErr{
 			0,
-			&httptest.ResponseRecorder{},
+			httptest.NewRecorder(),
 		},
 		request,
 	)
@@ -348,7 +348,7 @@ func TestInitiatePushMaxStreamsErr(t *testing.T) {
 	writer := getResponseWriter(
 		&testWriterConcurrentStreamsErr{
 			0,
-			&httptest.ResponseRecorder{},
+			httptest.NewRecorder(),
 		},
 		request,
 	)
