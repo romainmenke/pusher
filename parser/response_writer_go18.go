@@ -5,6 +5,10 @@ package parser
 import (
 	"bytes"
 	"net/http"
+
+	"github.com/romainmenke/pusher/common"
+
+	"golang.org/x/net/html"
 )
 
 type responseWriter struct {
@@ -25,7 +29,7 @@ type responseWriter struct {
 	// Flushed is whether the Handler called Flush.
 	flushed bool
 
-	path string
+	request *http.Request
 }
 
 func newResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
@@ -34,8 +38,69 @@ func newResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
 		0,
 		new(bytes.Buffer),
 		false,
-		r.URL.RequestURI(),
+		r,
 	}
+}
+
+func (w *responseWriter) ExtractLinks() []string {
+	links := make(map[string]struct{})
+
+	contentType := http.DetectContentType(w.body.Bytes())
+	if contentType != "text/html; charset=utf-8" {
+		return nil
+	}
+
+	path := w.request.URL.RequestURI()
+
+	z := html.NewTokenizer(w.body)
+
+TOKENIZER:
+	for {
+		tt := z.Next()
+
+		switch {
+		case tt == html.ErrorToken:
+			// End of the document, we're done
+			break TOKENIZER
+		case tt == html.StartTagToken:
+			t := z.Token()
+
+			if t.Data == "link" {
+				for _, link := range t.Attr {
+					if link.Key == "href" && !common.IsAbsolute(link.Val) && link.Val != path {
+						links[link.Val] = struct{}{}
+						break
+					}
+				}
+			}
+
+			if t.Data == "script" {
+				for _, script := range t.Attr {
+					if script.Key == "src" && !common.IsAbsolute(script.Val) && script.Val != path {
+						links[script.Val] = struct{}{}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	var linkSlice []string
+	if len(links) > 64 {
+		linkSlice = make([]string, 64)
+	} else {
+		linkSlice = make([]string, len(links))
+	}
+	index := 0
+	for key := range links {
+		if index >= len(linkSlice) {
+			break
+		}
+		linkSlice[index] = key
+		index++
+	}
+
+	return linkSlice
 }
 
 // Header returns the response headers.

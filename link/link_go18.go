@@ -2,7 +2,11 @@
 
 package link
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/romainmenke/pusher/common"
+)
 
 // Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
@@ -84,7 +88,7 @@ PUSH_LOOP:
 		// Parse the Link Header Value.
 		// This will return either an empty string or a relative url.
 		// When not empty -> Push.
-		pushLink := parseLinkHeader(link)
+		pushLink := common.ParseLinkHeader(link)
 		if pushLink != "" {
 
 			// Attempt to send a Push.

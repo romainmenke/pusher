@@ -1,8 +1,13 @@
-package link
+package common
 
 import "strings"
 
-func parseLinkHeader(h string) string {
+// ParseLinkHeader turns </fonts/CutiveMono-Regular.ttf>; rel=preload; as=font; into /fonts/CutiveMono-Regular.ttf
+// It returns and empty string when:
+// - the length limit is exceeded
+// - the 'rel' directive does not have a value of 'preload'
+// - the 'nopush' directive is present
+func ParseLinkHeader(h string) string {
 
 	var linkStart int
 	var linkEnd int
@@ -53,7 +58,7 @@ RUNELOOP:
 	url := strings.TrimSpace(h[linkStart:linkEnd])
 
 	// Url must have one forward slash.
-	if isAbsolute(url) {
+	if IsAbsolute(url) {
 		return ""
 	}
 

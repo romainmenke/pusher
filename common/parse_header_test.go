@@ -1,4 +1,4 @@
-package link
+package common
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 func TestParseLinkHeaderA(t *testing.T) {
 
-	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+	res := ParseLinkHeader("</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
 	if res != "/fonts/CutiveMono-Regular.ttf" {
 		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
 	}
@@ -15,7 +15,7 @@ func TestParseLinkHeaderA(t *testing.T) {
 
 func TestParseLinkHeaderB(t *testing.T) {
 
-	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf>; as=font;")
+	res := ParseLinkHeader("</fonts/CutiveMono-Regular.ttf>; as=font;")
 	if res != "" {
 		t.Fatal("expected : <empty string> , got :", res)
 	}
@@ -23,7 +23,7 @@ func TestParseLinkHeaderB(t *testing.T) {
 
 func TestParseLinkHeaderC(t *testing.T) {
 
-	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font; nopush;")
+	res := ParseLinkHeader("</fonts/CutiveMono-Regular.ttf>; rel=preload; as=font; nopush;")
 	if res != "" {
 		t.Fatal("expected : <empty string> , got :", res)
 	}
@@ -31,7 +31,7 @@ func TestParseLinkHeaderC(t *testing.T) {
 
 func TestParseLinkHeaderE(t *testing.T) {
 
-	res := parseLinkHeader("< /fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+	res := ParseLinkHeader("< /fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
 	if res != "/fonts/CutiveMono-Regular.ttf" {
 		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
 	}
@@ -39,7 +39,7 @@ func TestParseLinkHeaderE(t *testing.T) {
 
 func TestParseLinkHeaderF(t *testing.T) {
 
-	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf >; rel=preload; as=font;")
+	res := ParseLinkHeader("</fonts/CutiveMono-Regular.ttf >; rel=preload; as=font;")
 	if res != "/fonts/CutiveMono-Regular.ttf" {
 		t.Fatal("expected : /fonts/CutiveMono-Regular.ttf , got :", res)
 	}
@@ -47,7 +47,7 @@ func TestParseLinkHeaderF(t *testing.T) {
 
 func TestParseLinkHeaderBadA(t *testing.T) {
 
-	res := parseLinkHeader("/fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
+	res := ParseLinkHeader("/fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
 	if res != "" {
 		t.Fatal("expected : <empty string> , got :", res)
 	}
@@ -55,7 +55,15 @@ func TestParseLinkHeaderBadA(t *testing.T) {
 
 func TestParseLinkHeaderBadB(t *testing.T) {
 
-	res := parseLinkHeader("</fonts/CutiveMono-Regular.ttf; rel=preload; as=font;")
+	res := ParseLinkHeader("</fonts/CutiveMono-Regular.ttf; rel=preload; as=font;")
+	if res != "" {
+		t.Fatal("expected : <empty string> , got :", res)
+	}
+}
+
+func TestParseLinkHeaderBadC(t *testing.T) {
+
+	res := ParseLinkHeader("<foo.com/fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")
 	if res != "" {
 		t.Fatal("expected : <empty string> , got :", res)
 	}
@@ -69,7 +77,7 @@ func TestParseLinkHeaderLength(t *testing.T) {
 		t.Fatal(len(h1025))
 	}
 
-	res := parseLinkHeader(h1025)
+	res := ParseLinkHeader(h1025)
 	if res != "" {
 		t.Fatal("expected : <empty string> , got :", res)
 	}
@@ -82,35 +90,35 @@ func TestParseLinkHeaderLength(t *testing.T) {
 		t.Fatal(len(h1024))
 	}
 
-	res = parseLinkHeader(h1024)
+	res = ParseLinkHeader(h1024)
 	if res != h1024Res {
 		t.Fatal("expected : url , got :", res)
 	}
 }
 
-var parseLinkHeaderRes = ""
+var ParseLinkHeaderRes = ""
 
 func BenchmarkParseLinkHeader_1(b *testing.B) {
-	parseLinkHeaderBenchFactory(0)(b)
+	ParseLinkHeaderBenchFactory(0)(b)
 }
 
 func BenchmarkParseLinkHeader_10(b *testing.B) {
-	parseLinkHeaderBenchFactory(10)(b)
+	ParseLinkHeaderBenchFactory(10)(b)
 }
 
 func BenchmarkParseLinkHeader_100(b *testing.B) {
-	parseLinkHeaderBenchFactory(100)(b)
+	ParseLinkHeaderBenchFactory(100)(b)
 }
 
 func BenchmarkParseLinkHeader_1000(b *testing.B) {
-	parseLinkHeaderBenchFactory(1000)(b)
+	ParseLinkHeaderBenchFactory(1000)(b)
 }
 
 func BenchmarkParseLinkHeader_10000(b *testing.B) {
-	parseLinkHeaderBenchFactory(10000)(b)
+	ParseLinkHeaderBenchFactory(10000)(b)
 }
 
-func parseLinkHeaderBenchFactory(length int) func(b *testing.B) {
+func ParseLinkHeaderBenchFactory(length int) func(b *testing.B) {
 	return func(b *testing.B) {
 		testString := ""
 		for i := 0; i < length; i++ {
@@ -121,7 +129,7 @@ func parseLinkHeaderBenchFactory(length int) func(b *testing.B) {
 		b.ResetTimer()
 
 		for n := 0; n < b.N; n++ {
-			parseLinkHeaderRes = parseLinkHeader(testString)
+			ParseLinkHeaderRes = ParseLinkHeader(testString)
 		}
 	}
 }
