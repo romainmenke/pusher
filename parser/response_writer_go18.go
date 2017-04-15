@@ -26,20 +26,9 @@ type responseWriter struct {
 	// If nil, the Writes are silently discarded.
 	body *bytes.Buffer
 
-	// Flushed is whether the Handler called Flush.
-	flushed bool
+	extracted bool
 
 	request *http.Request
-}
-
-func newResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
-	return &responseWriter{
-		w,
-		0,
-		new(bytes.Buffer),
-		false,
-		r,
-	}
 }
 
 func (w *responseWriter) ExtractLinks() []common.Preloadable {
@@ -60,83 +49,40 @@ TOKENIZER:
 		tt := z.Next()
 
 		var asset common.Preloadable
+		var preload string
 
 		switch tt {
 		case html.ErrorToken:
 			// End of the document, we're done
 			break TOKENIZER
-		case html.StartTagToken:
+		case html.SelfClosingTagToken:
 
 			t := z.Token()
-
-			switch t.Data {
-			case "link":
-
-				var isPreload bool
-
-				for _, attr := range t.Attr {
-					switch attr.Key {
-					case "rel":
-						if attr.Val == "preload" {
-							isPreload = true
-						}
-					case "nopush":
-						continue TOKENIZER
-					case "href":
-						if common.IsAbsolute(attr.Val) || attr.Val == path {
-							continue TOKENIZER
-						}
-						if isPreload {
-							preloads[attr.Val] = struct{}{}
-						} else {
-							asset = common.CSS(attr.Val)
-						}
-					}
-				}
-
-			case "script":
-
-				for _, attr := range t.Attr {
-					switch attr.Key {
-					case "rel":
-						if attr.Val == "preload" {
-							continue TOKENIZER
-						}
-					case "nopush":
-						continue TOKENIZER
-					case "src":
-						if common.IsAbsolute(attr.Val) || attr.Val == path {
-							continue TOKENIZER
-						}
-						asset = common.JS(attr.Val)
-					}
-				}
-
-			case "img":
-
-				for _, attr := range t.Attr {
-					switch attr.Key {
-					case "rel":
-						if attr.Val == "preload" {
-							continue TOKENIZER
-						}
-					case "nopush":
-						continue TOKENIZER
-					case "src":
-						if common.IsAbsolute(attr.Val) || attr.Val == path {
-							continue TOKENIZER
-						}
-						asset = common.Img(attr.Val)
-					}
-				}
-
-			}
+			asset, preload = ParseToken(t, path)
 
 			if asset != nil {
 				if _, found := preloads[asset.Path()]; !found {
 					links[asset] = struct{}{}
 					asset = nil
 				}
+			} else if preload != "" {
+				preloads[preload] = struct{}{}
+				preload = ""
+			}
+
+		case html.StartTagToken:
+
+			t := z.Token()
+			asset, preload = ParseToken(t, path)
+
+			if asset != nil {
+				if _, found := preloads[asset.Path()]; !found {
+					links[asset] = struct{}{}
+					asset = nil
+				}
+			} else if preload != "" {
+				preloads[preload] = struct{}{}
+				preload = ""
 			}
 
 		}
@@ -161,6 +107,74 @@ TOKENIZER:
 	return linkSlice
 }
 
+func ParseToken(t html.Token, path string) (common.Preloadable, string) {
+
+	var asset common.Preloadable
+
+	switch t.Data {
+	case "link":
+
+		var isPreload bool
+
+		for _, attr := range t.Attr {
+			switch attr.Key {
+			case "rel":
+				if attr.Val == "preload" {
+					isPreload = true
+				}
+			case "nopush":
+				return nil, ""
+			case "href":
+				if common.IsAbsolute(attr.Val) || attr.Val == path {
+					return nil, ""
+				}
+				if isPreload {
+					return nil, attr.Val
+				} else {
+					asset = common.CSS(attr.Val)
+				}
+			}
+		}
+
+	case "script":
+
+		for _, attr := range t.Attr {
+			switch attr.Key {
+			case "rel":
+				if attr.Val == "preload" {
+					return nil, ""
+				}
+			case "nopush":
+				return nil, ""
+			case "src":
+				if common.IsAbsolute(attr.Val) || attr.Val == path {
+					return nil, ""
+				}
+				asset = common.JS(attr.Val)
+			}
+		}
+
+	case "img":
+
+		for _, attr := range t.Attr {
+			switch attr.Key {
+			case "rel":
+				if attr.Val == "preload" {
+					return nil, ""
+				}
+			case "nopush":
+				return nil, ""
+			case "src":
+				if common.IsAbsolute(attr.Val) || attr.Val == path {
+					return nil, ""
+				}
+				asset = common.Img(attr.Val)
+			}
+		}
+	}
+	return asset, ""
+}
+
 // Header returns the response headers.
 func (w *responseWriter) Header() http.Header {
 	return w.ResponseWriter.Header()
@@ -172,12 +186,30 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 		w.statusCode = 200
 	}
 
-	if w.body != nil {
-		l := len(buf)
-		if l > 1024 {
-			l = 1024
+	if !w.extracted {
+		w.extracted = true
+
+		if w.body != nil {
+			l := len(buf)
+			if l > 1024 {
+				l = 1024
+			}
+			w.body.Write(buf[:l])
 		}
-		w.body.Write(buf[:l])
+
+		p := w.ExtractLinks()
+
+		if pusher, ok := w.ResponseWriter.(http.Pusher); ok {
+			for _, l := range p {
+				pusher.Push(l.Path(), &http.PushOptions{
+					Header: w.request.Header,
+				})
+			}
+		} else {
+			for _, l := range p {
+				w.Header().Add("Link", l.LinkHeader())
+			}
+		}
 	}
 
 	return w.ResponseWriter.Write(buf)
