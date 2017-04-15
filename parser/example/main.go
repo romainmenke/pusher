@@ -21,6 +21,13 @@ func main() {
 		apiCall,
 	)
 
+	go func() {
+		err := http.ListenAndServe(":8000", nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	err := http.ListenAndServeTLS(":4430", "./link/example/localhost.crt", "./link/example/localhost.key", nil)
 	if err != nil {
 		panic(err)

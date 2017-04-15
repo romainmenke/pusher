@@ -212,6 +212,10 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 		}
 	}
 
+	if !w.extracted {
+		w.ResponseWriter.WriteHeader(w.statusCode)
+	}
+
 	return w.ResponseWriter.Write(buf)
 }
 
@@ -221,8 +225,6 @@ func (w *responseWriter) WriteHeader(s int) {
 	if w.statusCode == 0 {
 		w.statusCode = s
 	}
-
-	w.ResponseWriter.WriteHeader(w.statusCode)
 }
 
 // Flush sets rw.Flushed to true.
