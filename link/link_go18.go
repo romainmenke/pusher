@@ -81,7 +81,7 @@ PUSH_LOOP:
 
 		// Limit the number of values parsed.
 		// This is not based on how many are eventually pushed.
-		if index >= headerAmountLimit {
+		if index >= HeaderAmountLimit {
 			break PUSH_LOOP
 		}
 

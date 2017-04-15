@@ -42,8 +42,9 @@ func newResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
 	}
 }
 
-func (w *responseWriter) ExtractLinks() []string {
-	links := make(map[string]struct{})
+func (w *responseWriter) ExtractLinks() []common.Preloadable {
+	links := make(map[common.Preloadable]struct{})
+	preloads := make(map[string]struct{})
 
 	contentType := http.DetectContentType(w.body.Bytes())
 	if contentType != "text/html; charset=utf-8" {
@@ -58,38 +59,95 @@ TOKENIZER:
 	for {
 		tt := z.Next()
 
-		switch {
-		case tt == html.ErrorToken:
+		var asset common.Preloadable
+
+		switch tt {
+		case html.ErrorToken:
 			// End of the document, we're done
 			break TOKENIZER
-		case tt == html.StartTagToken:
+		case html.StartTagToken:
+
 			t := z.Token()
 
-			if t.Data == "link" {
-				for _, link := range t.Attr {
-					if link.Key == "href" && !common.IsAbsolute(link.Val) && link.Val != path {
-						links[link.Val] = struct{}{}
-						break
+			switch t.Data {
+			case "link":
+
+				var isPreload bool
+
+				for _, attr := range t.Attr {
+					switch attr.Key {
+					case "rel":
+						if attr.Val == "preload" {
+							isPreload = true
+						}
+					case "nopush":
+						continue TOKENIZER
+					case "href":
+						if common.IsAbsolute(attr.Val) || attr.Val == path {
+							continue TOKENIZER
+						}
+						if isPreload {
+							preloads[attr.Val] = struct{}{}
+						} else {
+							asset = common.CSS(attr.Val)
+						}
 					}
+				}
+
+			case "script":
+
+				for _, attr := range t.Attr {
+					switch attr.Key {
+					case "rel":
+						if attr.Val == "preload" {
+							continue TOKENIZER
+						}
+					case "nopush":
+						continue TOKENIZER
+					case "src":
+						if common.IsAbsolute(attr.Val) || attr.Val == path {
+							continue TOKENIZER
+						}
+						asset = common.JS(attr.Val)
+					}
+				}
+
+			case "img":
+
+				for _, attr := range t.Attr {
+					switch attr.Key {
+					case "rel":
+						if attr.Val == "preload" {
+							continue TOKENIZER
+						}
+					case "nopush":
+						continue TOKENIZER
+					case "src":
+						if common.IsAbsolute(attr.Val) || attr.Val == path {
+							continue TOKENIZER
+						}
+						asset = common.Img(attr.Val)
+					}
+				}
+
+			}
+
+			if asset != nil {
+				if _, found := preloads[asset.Path()]; !found {
+					links[asset] = struct{}{}
+					asset = nil
 				}
 			}
 
-			if t.Data == "script" {
-				for _, script := range t.Attr {
-					if script.Key == "src" && !common.IsAbsolute(script.Val) && script.Val != path {
-						links[script.Val] = struct{}{}
-						break
-					}
-				}
-			}
 		}
+
 	}
 
-	var linkSlice []string
+	var linkSlice []common.Preloadable
 	if len(links) > 64 {
-		linkSlice = make([]string, 64)
+		linkSlice = make([]common.Preloadable, 64)
 	} else {
-		linkSlice = make([]string, len(links))
+		linkSlice = make([]common.Preloadable, len(links))
 	}
 	index := 0
 	for key := range links {

@@ -29,11 +29,28 @@ func TestWrite(t *testing.T) {
 		t.Fatal()
 	}
 
-	if 1024 != len(writer.body.Bytes()) {
+	if 1024 < len(writer.body.Bytes()) {
 		t.Fatal()
 	}
 
 	linkSlice := writer.ExtractLinks()
+
+	found := 0
+	for _, link := range linkSlice {
+		switch link.Path() {
+		case "/assets/css/gzip/bundle.min.css":
+			found++
+		case "/assets/js/gzip/bundle.min.js":
+			found++
+		case "/img":
+			found++
+		default:
+			t.Fatal(link)
+		}
+	}
+	if found != 3 {
+		t.Fatal(found)
+	}
 
 	t.Log(linkSlice)
 
@@ -66,8 +83,22 @@ var testHTML = `
 <!DOCTYPE HTML>
 <html>
 <head>
+	<!-- preload -->
+	<link rel="preload" href="/assets/font.woff2" as="font" type="font/woff2">
+	<link rel="preload" href="/style/other.css" as="style">
+	<link rel="preload" href="//example.com/resource">
+	<link rel="preload" href="https://fonts.example.com/font.woff2" as="font" crossorigin type="font/woff2">
+
+	<!-- links -->
 	<link rel="stylesheet" type="text/css" href="/assets/css/gzip/bundle.min.css">
+	<link rel="stylesheet" type="text/css" href="foo.com/assets/css/gzip/bundle.min.css">
+	<link rel="stylesheet" type="text/css" href="/">
 	<script type="text/javascript" src="/assets/js/gzip/bundle.min.js"></script>
-</head>
-</html>
-`
+	<script type="text/javascript" src="foo.com/assets/js/gzip/bundle.min.js"></script>
+	<script type="text/javascript" src="/"></script>
+	<img src="/img" alt="some_text">
+	<img src="foo.com/img" alt="some_text">
+	<img src="/" alt="some_text">
+
+	<!-- partial -->
+	<link rel="stylesheet" type="text/css" href="/assets/css/gzip/partial`

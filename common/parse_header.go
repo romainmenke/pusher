@@ -13,7 +13,7 @@ func ParseLinkHeader(h string) string {
 	var linkEnd int
 
 	// Don't parse anything longer than the limit
-	if len(h) > headerLengthLimit {
+	if len(h) > HeaderLengthLimit {
 		return ""
 	}
 
