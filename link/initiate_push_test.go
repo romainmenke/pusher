@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/romainmenke/pusher/common"
 )
 
 func TestInitatePush(t *testing.T) {
@@ -35,7 +37,7 @@ func TestInitatePush(t *testing.T) {
 	InitiatePush(writer)
 
 	if len(testW.pushed) != 1 || testW.pushed[0] != "/style.css" {
-		t.Fatal("bad push")
+		t.Fatal("bad push", testW.pushed)
 	}
 
 	if testW.options == nil || testW.options.Header == nil {
@@ -158,10 +160,10 @@ func TestInitiatePushLinkLimit(t *testing.T) {
 	)
 	defer writer.close()
 
-	writer.Header()[Link] = []string{}
+	writer.Header()[common.Link] = []string{}
 
 	for i := 0; i < 80; i++ {
-		writer.Header()[Link] = append(writer.Header()[Link], fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i))
+		writer.Header()[common.Link] = append(writer.Header()[common.Link], fmt.Sprintf("</css/stylesheet-%d.css>; rel=preload; as=style;", i))
 	}
 
 	InitiatePush(writer)
@@ -208,7 +210,7 @@ func TestInitiatePushNoPusher(t *testing.T) {
 		request,
 	)
 
-	writer.Header()[Link] = []string{
+	writer.Header()[common.Link] = []string{
 		"</css/stylesheet-1.css>; rel=preload; as=style;",
 		"</css/stylesheet-2.css>; rel=preload; as=style;",
 		"</css/stylesheet-3.css>; rel=preload; as=style;",
@@ -233,7 +235,7 @@ func TestInitiatePushNoPusher(t *testing.T) {
 		nil,
 	)
 
-	writer.Header()[Link] = []string{
+	writer.Header()[common.Link] = []string{
 		"</css/stylesheet-1.css>; rel=preload; as=style;",
 		"</css/stylesheet-2.css>; rel=preload; as=style;",
 		"</css/stylesheet-3.css>; rel=preload; as=style;",
@@ -272,7 +274,7 @@ func TestInitiatePushRandomErr(t *testing.T) {
 	)
 	defer writer.close()
 
-	writer.Header()[Link] = []string{
+	writer.Header()[common.Link] = []string{
 		"</css/stylesheet-1.css>; rel=preload; as=style;",
 		"</css/stylesheet-2.css>; rel=preload; as=style;",
 		"</css/stylesheet-3.css>; rel=preload; as=style;",
@@ -313,7 +315,7 @@ func TestInitiatePushRecursiveErr(t *testing.T) {
 	)
 	defer writer.close()
 
-	writer.Header()[Link] = []string{
+	writer.Header()[common.Link] = []string{
 		"</css/stylesheet-1.css>; rel=preload; as=style;",
 		"</css/stylesheet-2.css>; rel=preload; as=style;",
 		"</css/stylesheet-3.css>; rel=preload; as=style;",
@@ -354,7 +356,7 @@ func TestInitiatePushMaxStreamsErr(t *testing.T) {
 	)
 	defer writer.close()
 
-	writer.Header()[Link] = []string{
+	writer.Header()[common.Link] = []string{
 		"</css/stylesheet-1.css>; rel=preload; as=style;",
 		"</css/stylesheet-2.css>; rel=preload; as=style;",
 		"</css/stylesheet-3.css>; rel=preload; as=style;",

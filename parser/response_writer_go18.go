@@ -2,7 +2,11 @@
 
 package parser
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/romainmenke/pusher/common"
+)
 
 // Write always succeeds and writes to rw.Body, if not nil.
 func (w *responseWriter) Write(buf []byte) (int, error) {
@@ -21,9 +25,9 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 			w.body.Write(buf[:l])
 		}
 
-		p := w.ExtractLinks()
+		p := w.extractLinks()
 
-		if pusher, ok := w.ResponseWriter.(http.Pusher); ok {
+		if pusher, ok := w.ResponseWriter.(http.Pusher); ok && w.request.Header.Get(common.XForwardedFor) == "" {
 			for _, l := range p {
 				pusher.Push(l.Path(), &http.PushOptions{
 					Header: w.request.Header,
@@ -31,7 +35,7 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 			}
 		} else {
 			for _, l := range p {
-				w.Header().Add("Link", l.LinkHeader())
+				w.Header().Add(common.Link, l.LinkHeader())
 			}
 		}
 

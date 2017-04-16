@@ -52,7 +52,7 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 
 			defer handler.ServeHTTP(w, r)
 
-			if r.Method != "GET" {
+			if r.Method != common.Get {
 				return
 			}
 
@@ -64,7 +64,7 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 			}
 
 			for _, header := range pathMap[localPath] {
-				w.Header().Add("Link", header)
+				w.Header().Add(common.Link, header)
 			}
 		})
 

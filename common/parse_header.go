@@ -45,7 +45,7 @@ RUNELOOP:
 	}
 
 	// If the remainder does not contain the preload directive return an empty string.
-	if !strings.Contains(h[linkEnd+1:], Preload) {
+	if !strings.Contains(h[linkEnd+1:], RelIsPreload) {
 		return ""
 	}
 

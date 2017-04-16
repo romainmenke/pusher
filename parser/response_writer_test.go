@@ -1,8 +1,7 @@
-// +build go1.8
-
 package parser
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -20,6 +19,7 @@ func TestWrite(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	writer := getResponseWriter(recorder, request)
+	defer writer.close()
 
 	writer.Write([]byte(testHTML))
 	if recorder.Body == nil {
@@ -33,7 +33,11 @@ func TestWrite(t *testing.T) {
 		t.Fatal()
 	}
 
-	linkSlice := writer.ExtractLinks()
+	linkSlice := writer.extractLinks()
+	if len(linkSlice) != 3 {
+		log.Println(linkSlice)
+		t.Fatal(len(linkSlice), linkSlice)
+	}
 
 	found := 0
 	for _, link := range linkSlice {
@@ -47,9 +51,6 @@ func TestWrite(t *testing.T) {
 		default:
 			t.Fatal(link)
 		}
-	}
-	if found != 3 {
-		t.Fatal(found)
 	}
 
 	t.Log(linkSlice)
@@ -73,7 +74,9 @@ func BenchmarkWrite(b *testing.B) {
 
 		writer.Write([]byte(testHTML))
 
-		writer.ExtractLinks()
+		writer.extractLinks()
+
+		writer.close()
 
 	}
 

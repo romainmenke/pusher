@@ -2,6 +2,8 @@
 
 package parser
 
+import "github.com/romainmenke/pusher/common"
+
 // Write always succeeds and writes to rw.Body, if not nil.
 func (w *responseWriter) Write(buf []byte) (int, error) {
 	if w.statusCode == 0 {
@@ -19,10 +21,10 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 			w.body.Write(buf[:l])
 		}
 
-		p := w.ExtractLinks()
+		p := w.extractLinks()
 
 		for _, l := range p {
-			w.Header().Add("Link", l.LinkHeader())
+			w.Header().Add(common.Link, l.LinkHeader())
 		}
 
 		w.ResponseWriter.WriteHeader(w.statusCode)
