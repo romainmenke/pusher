@@ -10,8 +10,8 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 		w.statusCode = 200
 	}
 
-	if !w.extracted {
-		w.extracted = true
+	if !w.headerWritter {
+		w.headerWritter = true
 
 		if w.body != nil {
 			l := len(buf)
@@ -34,9 +34,7 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 				w.Header().Add("Link", l.LinkHeader())
 			}
 		}
-	}
 
-	if !w.extracted {
 		w.ResponseWriter.WriteHeader(w.statusCode)
 	}
 

@@ -19,7 +19,7 @@ func TestWrite(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	writer := newResponseWriter(recorder, request)
+	writer := getResponseWriter(recorder, request)
 
 	writer.Write([]byte(testHTML))
 	if recorder.Body == nil {
@@ -69,7 +69,7 @@ func BenchmarkWrite(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 
 		recorder := httptest.NewRecorder()
-		writer := newResponseWriter(recorder, request)
+		writer := getResponseWriter(recorder, request)
 
 		writer.Write([]byte(testHTML))
 

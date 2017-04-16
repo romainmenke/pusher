@@ -24,7 +24,7 @@ type responseWriter struct {
 	// If nil, the Writes are silently discarded.
 	body *bytes.Buffer
 
-	extracted bool
+	headerWritter bool
 
 	request *http.Request
 }

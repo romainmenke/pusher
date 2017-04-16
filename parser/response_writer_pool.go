@@ -23,22 +23,12 @@ func (w *responseWriter) reset() {
 	w.ResponseWriter = nil
 	w.request = nil
 	w.statusCode = 0
-	w.extracted = false
+	w.headerWritter = false
 }
 
 func (w *responseWriter) close() {
 	w.reset()
 	writerPool.Put(w)
-}
-
-func newResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
-	return &responseWriter{
-		w,
-		0,
-		new(bytes.Buffer),
-		false,
-		r,
-	}
 }
 
 // getResponseWriter returns a responseWriter from the sync.Pool.
