@@ -8,12 +8,6 @@ import (
 	"github.com/romainmenke/pusher/common"
 )
 
-const (
-	protoHTTP11    = "HTTP/1.1"
-	protoHTTP11TLS = "HTTP/1.1+TLS"
-	protoHTTP20    = "HTTP/2.0"
-)
-
 // Handler wraps an http.Handler reading the response body and setting Link Headers or generating Pushes
 func Handler(handler http.Handler, options ...Option) http.Handler {
 
