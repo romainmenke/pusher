@@ -37,8 +37,24 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		// This returns it to the sync.Pool and zeroes all values and pointers.
 		defer rw.close()
 
+		var protoW http.ResponseWriter
+		switch r.Proto {
+		case protoHTTP11:
+			protoW = &responseWriterHTTP11{
+				responseWriter: rw,
+			}
+		case protoHTTP11TLS:
+			protoW = &responseWriterHTTP11TLS{
+				responseWriter: rw,
+			}
+		case protoHTTP20:
+			protoW = &responseWriterHTTP2{
+				responseWriter: rw,
+			}
+		}
+
 		// handle.
-		handler.ServeHTTP(rw, r)
+		handler.ServeHTTP(protoW, r)
 
 	})
 }
