@@ -2,7 +2,11 @@
 
 package link
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/romainmenke/pusher/common"
+)
 
 // Handler wraps an http.Handler with H2 Push functionality.
 func Handler(handler http.Handler) http.Handler {
@@ -31,7 +35,7 @@ func Handler(handler http.Handler) http.Handler {
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	// Only GET requests should trigger Pushes.
-	if r.Method != Get {
+	if r.Method != common.Get {
 		return false
 	}
 
@@ -48,7 +52,7 @@ func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	// The request must not be proxied.
 	// Proxies might not support forwarding Pushes.
-	if r.Header.Get(XForwardedFor) != "" {
+	if r.Header.Get(common.XForwardedFor) != "" {
 		return false
 	}
 
@@ -64,7 +68,7 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 	}
 
 	// Get the Link Header values from the Response Header.
-	linkHeaders, ok := w.Header()[Link]
+	linkHeaders, ok := w.Header()[common.Link]
 	if !ok {
 		return
 	}
@@ -77,14 +81,14 @@ PUSH_LOOP:
 
 		// Limit the number of values parsed.
 		// This is not based on how many are eventually pushed.
-		if index >= headerAmountLimit {
+		if index >= common.HeaderAmountLimit {
 			break PUSH_LOOP
 		}
 
 		// Parse the Link Header Value.
 		// This will return either an empty string or a relative url.
 		// When not empty -> Push.
-		pushLink := parseLinkHeader(link)
+		pushLink := common.ParseLinkHeader(link)
 		if pushLink != "" {
 
 			// Attempt to send a Push.
@@ -119,8 +123,8 @@ PUSH_LOOP:
 	}
 
 	// Move the pushed values to a new Key to prevent the browser from requesting it.
-	w.ResponseWriter.Header()[GoH2Pushed] = linkHeaders[:splitIndex]
+	w.ResponseWriter.Header()[common.GoH2Pushed] = linkHeaders[:splitIndex]
 	// Update 'Link' with the remaining values.
-	w.ResponseWriter.Header()[Link] = linkHeaders[splitIndex:]
+	w.ResponseWriter.Header()[common.Link] = linkHeaders[splitIndex:]
 
 }

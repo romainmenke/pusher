@@ -5,8 +5,9 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"sync"
+
+	"github.com/romainmenke/pusher/common"
 )
 
 type settings struct {
@@ -51,7 +52,7 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 
 			defer handler.ServeHTTP(w, r)
 
-			if r.Method != "GET" {
+			if r.Method != common.Get {
 				return
 			}
 
@@ -63,7 +64,7 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 			}
 
 			for _, header := range pathMap[localPath] {
-				w.Header().Add("Link", header)
+				w.Header().Add(common.Link, header)
 			}
 		})
 
@@ -100,8 +101,12 @@ func read(filePath string) (map[string][]string, map[string]struct{}, error) {
 			continue
 		}
 		if currentPath != "" && len(txt) > 0 && txt[:1] == "<" {
+			link := common.ParseLinkHeader(txt)
+			if link == "" {
+				continue
+			}
 			currentHeaders = append(currentHeaders, txt)
-			headerMap[parseLinkHeader(txt)] = struct{}{}
+			headerMap[link] = struct{}{}
 			continue
 		}
 		if txt == "" {
@@ -123,30 +128,4 @@ func read(filePath string) (map[string][]string, map[string]struct{}, error) {
 
 	return pathMap, headerMap, nil
 
-}
-
-func parseLinkHeader(h string) string {
-
-	var linkStart int
-	var linkEnd int
-
-RUNELOOP:
-	for index, runeValue := range h {
-		switch runeValue {
-		case '<':
-			linkStart = index + 1
-		case '>':
-			linkEnd = index
-			break RUNELOOP
-		case ';':
-			linkStart = 0
-			linkEnd = 0
-		}
-	}
-
-	if linkStart == 0 || linkEnd == 0 {
-		return ""
-	}
-
-	return strings.TrimSpace(h[linkStart:linkEnd])
 }

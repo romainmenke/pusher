@@ -9,6 +9,7 @@ go:
 - master
 
 script:
+  - go test -v ./...
   - bash ./go.test.sh
 
 after_success:
