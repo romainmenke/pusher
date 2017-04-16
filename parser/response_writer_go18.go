@@ -8,14 +8,13 @@ import (
 	"github.com/romainmenke/pusher/common"
 )
 
-// Write always succeeds and writes to rw.Body, if not nil.
 func (w *responseWriter) Write(buf []byte) (int, error) {
 	if w.statusCode == 0 {
 		w.statusCode = 200
 	}
 
-	if !w.headerWritter {
-		w.headerWritter = true
+	if !w.headerWritten {
+		w.headerWritten = true
 
 		if w.body != nil {
 			l := len(buf)

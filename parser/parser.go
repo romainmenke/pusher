@@ -7,22 +7,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Handler wraps an http.Handler reading the response body and setting Link Headers or generating Pushes
-func Handler(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		// Get a responseWriter from the sync.Pool.
-		var rw = getResponseWriter(w, r)
-		// defer close the responseWriter.
-		// This returns it to the sync.Pool and zeroes all values and pointers.
-		defer rw.close()
-
-		// handle.
-		handler.ServeHTTP(rw, r)
-
-	})
-}
-
 func (w *responseWriter) extractLinks() chan common.Preloadable {
 
 	out := make(chan common.Preloadable)
@@ -93,6 +77,10 @@ func (w *responseWriter) extractLinks() chan common.Preloadable {
 			}
 			if index >= common.HeaderAmountLimit {
 				return
+			}
+
+			if w.settings.withCache {
+				putOneInCache(path, key)
 			}
 			out <- key
 		}
