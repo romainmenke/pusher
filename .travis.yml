@@ -10,8 +10,6 @@ go:
 
 script:
   - go test -v ./...
-
-script:
   - bash ./go.test.sh
 
 after_success:
