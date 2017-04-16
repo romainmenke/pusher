@@ -1,8 +1,6 @@
-// +build go1.8
+// +build !go1.8
 
 package parser
-
-import "net/http"
 
 // Write always succeeds and writes to rw.Body, if not nil.
 func (w *responseWriter) Write(buf []byte) (int, error) {
@@ -23,16 +21,8 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 
 		p := w.ExtractLinks()
 
-		if pusher, ok := w.ResponseWriter.(http.Pusher); ok {
-			for _, l := range p {
-				pusher.Push(l.Path(), &http.PushOptions{
-					Header: w.request.Header,
-				})
-			}
-		} else {
-			for _, l := range p {
-				w.Header().Add("Link", l.LinkHeader())
-			}
+		for _, l := range p {
+			w.Header().Add("Link", l.LinkHeader())
 		}
 	}
 
