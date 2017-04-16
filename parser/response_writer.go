@@ -20,9 +20,11 @@ type responseWriter struct {
 	// If nil, the Writes are silently discarded.
 	body *bytes.Buffer
 
-	headerWritter bool
+	headerWritten bool
 
 	request *http.Request
+
+	settings *settings
 }
 
 // Header returns the response headers.
@@ -38,7 +40,10 @@ func (w *responseWriter) WriteHeader(s int) {
 	}
 }
 
-// Flush sets rw.Flushed to true.
+func (w *responseWriter) CloseNotify() <-chan bool {
+	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
 func (w *responseWriter) Flush() {
 	flusher, ok := w.ResponseWriter.(http.Flusher)
 	if ok && flusher != nil {

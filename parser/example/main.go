@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/romainmenke/pusher/parser"
 )
@@ -14,6 +15,8 @@ func main() {
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			}),
+			parser.WithCache(),
+			parser.CacheDuration(time.Hour*100000),
 		),
 	)
 

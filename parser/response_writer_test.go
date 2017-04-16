@@ -5,9 +5,14 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestWrite(t *testing.T) {
+
+	s := &settings{}
+	WithCache()(s)
+	CacheDuration(time.Hour * 1)(s)
 
 	u, _ := url.Parse("/")
 
@@ -17,7 +22,7 @@ func TestWrite(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	writer := getResponseWriter(recorder, request)
+	writer := getResponseWriter(s, recorder, request)
 	defer writer.close()
 
 	writer.Write([]byte(testHTML))
@@ -56,6 +61,10 @@ func TestWrite(t *testing.T) {
 
 func BenchmarkWrite(b *testing.B) {
 
+	s := &settings{}
+	WithCache()(s)
+	CacheDuration(time.Hour * 1)(s)
+
 	u, _ := url.Parse("/")
 
 	request := &http.Request{
@@ -67,11 +76,18 @@ func BenchmarkWrite(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 
 		recorder := httptest.NewRecorder()
-		writer := getResponseWriter(recorder, request)
+		writer := getResponseWriter(s, recorder, request)
 
 		writer.Write([]byte(testHTML))
 
-		writer.extractLinks()
+		links := writer.extractLinks()
+		for {
+			_, more := <-links
+			if more {
+			} else {
+				break
+			}
+		}
 
 		writer.close()
 

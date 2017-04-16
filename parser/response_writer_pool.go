@@ -20,10 +20,11 @@ func init() {
 
 func (w *responseWriter) reset() {
 	w.body = nil
-	w.ResponseWriter = nil
+	w.headerWritten = false
 	w.request = nil
+	w.ResponseWriter = nil
+	w.settings = nil
 	w.statusCode = 0
-	w.headerWritter = false
 }
 
 func (w *responseWriter) close() {
@@ -33,12 +34,13 @@ func (w *responseWriter) close() {
 
 // getResponseWriter returns a responseWriter from the sync.Pool.
 // as a save guard reset is also called before returning the responseWriter.
-func getResponseWriter(w http.ResponseWriter, r *http.Request) *responseWriter {
+func getResponseWriter(s *settings, w http.ResponseWriter, r *http.Request) *responseWriter {
 	rw := writerPool.Get().(*responseWriter)
 	rw.reset()
 
 	rw.body = new(bytes.Buffer)
-	rw.ResponseWriter = w
 	rw.request = r
+	rw.ResponseWriter = w
+	rw.settings = s
 	return rw
 }

@@ -15,6 +15,7 @@
 
 - [link](https://github.com/romainmenke/pusher/tree/master/link) : a H2 Push handler based on `Link` headers.
 - [linkheader](https://github.com/romainmenke/pusher/tree/master/linkheader) : `Link` header placer.
+- [parser](https://github.com/romainmenke/pusher/tree/master/parser) : html body parser -> generates Push Frames / Link Headers for you.
 
 Checkout the sub-packages for more details.
 

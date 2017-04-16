@@ -10,8 +10,8 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 		w.statusCode = 200
 	}
 
-	if !w.headerWritter {
-		w.headerWritter = true
+	if !w.headerWritten {
+		w.headerWritten = true
 
 		if w.body != nil {
 			l := len(buf)
