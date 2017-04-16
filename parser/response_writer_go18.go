@@ -25,17 +25,26 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 			w.body.Write(buf[:l])
 		}
 
-		p := w.extractLinks()
-
+		links := w.extractLinks()
 		if pusher, ok := w.ResponseWriter.(http.Pusher); ok && w.request.Header.Get(common.XForwardedFor) == "" {
-			for _, l := range p {
-				pusher.Push(l.Path(), &http.PushOptions{
-					Header: w.request.Header,
-				})
+			for {
+				link, more := <-links
+				if more {
+					pusher.Push(link.Path(), &http.PushOptions{
+						Header: w.request.Header,
+					})
+				} else {
+					break
+				}
 			}
 		} else {
-			for _, l := range p {
-				w.Header().Add(common.Link, l.LinkHeader())
+			for {
+				link, more := <-links
+				if more {
+					w.Header().Add(common.Link, link.LinkHeader())
+				} else {
+					break
+				}
 			}
 		}
 

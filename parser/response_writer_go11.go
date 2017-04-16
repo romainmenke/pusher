@@ -21,10 +21,14 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 			w.body.Write(buf[:l])
 		}
 
-		p := w.extractLinks()
-
-		for _, l := range p {
-			w.Header().Add(common.Link, l.LinkHeader())
+		links := w.extractLinks()
+		for {
+			link, more := <-links
+			if more {
+				w.Header().Add(common.Link, link.LinkHeader())
+			} else {
+				break
+			}
 		}
 
 		w.ResponseWriter.WriteHeader(w.statusCode)

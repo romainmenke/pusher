@@ -32,26 +32,25 @@ func TestWrite(t *testing.T) {
 		t.Fatal()
 	}
 
-	linkSlice := writer.extractLinks()
-	if len(linkSlice) != 3 {
-		t.Fatal(len(linkSlice), linkSlice)
-	}
-
+	links := writer.extractLinks()
 	found := 0
-	for _, link := range linkSlice {
-		switch link.Path() {
-		case "/assets/css/gzip/bundle.min.css":
-			found++
-		case "/assets/js/gzip/bundle.min.js":
-			found++
-		case "/img":
-			found++
-		default:
-			t.Fatal(link)
+	for {
+		link, more := <-links
+		if more {
+			switch link.Path() {
+			case "/assets/css/gzip/bundle.min.css":
+				found++
+			case "/assets/js/gzip/bundle.min.js":
+				found++
+			case "/img":
+				found++
+			default:
+				t.Fatal(link)
+			}
+		} else {
+			break
 		}
 	}
-
-	t.Log(linkSlice)
 
 }
 

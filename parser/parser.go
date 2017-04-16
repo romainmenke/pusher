@@ -23,78 +23,82 @@ func Handler(handler http.Handler) http.Handler {
 	})
 }
 
-func (w *responseWriter) extractLinks() []common.Preloadable {
-	links := make(map[common.Preloadable]struct{})
-	preloads := make(map[string]struct{})
+func (w *responseWriter) extractLinks() chan common.Preloadable {
 
-	contentType := http.DetectContentType(w.body.Bytes())
-	if contentType != "text/html; charset=utf-8" {
-		return nil
-	}
+	out := make(chan common.Preloadable)
 
-	path := w.request.URL.RequestURI()
+	go func() {
+		defer close(out)
 
-	z := html.NewTokenizer(w.body)
+		links := make(map[common.Preloadable]struct{})
+		preloads := make(map[string]struct{})
 
-TOKENIZER:
-	for {
-		tt := z.Next()
+		contentType := http.DetectContentType(w.body.Bytes())
+		if contentType != "text/html; charset=utf-8" {
+			return
+		}
 
-		var asset common.Preloadable
-		var preload string
+		path := w.request.URL.RequestURI()
 
-		switch tt {
-		case html.ErrorToken:
-			// End of the document, we're done
-			break TOKENIZER
-		case html.SelfClosingTagToken:
+		z := html.NewTokenizer(w.body)
 
-			t := z.Token()
-			asset, preload = parseToken(t, path)
+	TOKENIZER:
+		for {
+			tt := z.Next()
 
-			if asset != nil {
-				if _, found := preloads[asset.Path()]; !found {
-					links[asset] = struct{}{}
-					asset = nil
+			var asset common.Preloadable
+			var preload string
+
+			switch tt {
+			case html.ErrorToken:
+				// End of the document, we're done
+				break TOKENIZER
+			case html.SelfClosingTagToken:
+
+				t := z.Token()
+				asset, preload = parseToken(t, path)
+
+				if asset != nil {
+					if _, found := preloads[asset.Path()]; !found {
+						links[asset] = struct{}{}
+						asset = nil
+					}
+				} else if preload != "" {
+					preloads[preload] = struct{}{}
+					preload = ""
 				}
-			} else if preload != "" {
-				preloads[preload] = struct{}{}
-				preload = ""
-			}
 
-		case html.StartTagToken:
+			case html.StartTagToken:
 
-			t := z.Token()
-			asset, preload = parseToken(t, path)
+				t := z.Token()
+				asset, preload = parseToken(t, path)
 
-			if asset != nil {
-				if _, found := preloads[asset.Path()]; !found {
-					links[asset] = struct{}{}
-					asset = nil
+				if asset != nil {
+					if _, found := preloads[asset.Path()]; !found {
+						links[asset] = struct{}{}
+						asset = nil
+					}
+				} else if preload != "" {
+					preloads[preload] = struct{}{}
+					preload = ""
 				}
-			} else if preload != "" {
-				preloads[preload] = struct{}{}
-				preload = ""
+
 			}
-
 		}
-	}
 
-	linkSlice := make([]common.Preloadable, len(links))
-
-	index := 0
-	for key := range links {
-		if _, found := preloads[key.Path()]; found {
-			continue
+		index := 0
+		for key := range links {
+			if _, found := preloads[key.Path()]; found {
+				continue
+			}
+			if index >= common.HeaderAmountLimit {
+				return
+			}
+			out <- key
 		}
-		if index >= len(linkSlice) {
-			break
-		}
-		linkSlice[index] = key
-		index++
-	}
+	}()
 
-	return linkSlice[:index]
+	return out
 }
 
 const (
