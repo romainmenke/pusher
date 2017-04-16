@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -35,7 +34,6 @@ func TestWrite(t *testing.T) {
 
 	linkSlice := writer.extractLinks()
 	if len(linkSlice) != 3 {
-		log.Println(linkSlice)
 		t.Fatal(len(linkSlice), linkSlice)
 	}
 

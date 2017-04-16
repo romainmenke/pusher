@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/romainmenke/pusher/common"
@@ -95,7 +94,6 @@ TOKENIZER:
 		index++
 	}
 
-	log.Println(linkSlice)
 	return linkSlice[:index]
 }
 
