@@ -13,12 +13,11 @@ func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		writer := w
-		handler.ServeHTTP(writer, r)
+		defer handler.ServeHTTP(writer, r)
 
 		// If CanPush returns false, use the input handler.
 		// Else -> wrap it.
 		if !CanPush(w, r) {
-			handler.ServeHTTP(w, r)
 			return
 		}
 
