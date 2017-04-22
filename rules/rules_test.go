@@ -10,7 +10,7 @@ import (
 
 func TestMiddlewareWithFileOption(t *testing.T) {
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return Handler(h, RulesFileOption("./rules/example/rules.txt"))
+		return Handler(h, FileOption("./rules/example/rules.txt"))
 	})
 }
 
@@ -44,6 +44,6 @@ func TestMiddlewareWithTextOption(t *testing.T) {
 	</call.json>; rel=preload;`)
 
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return Handler(h, RulesReaderOption(reader))
+		return Handler(h, ReaderOption(reader))
 	})
 }

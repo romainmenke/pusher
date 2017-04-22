@@ -18,16 +18,16 @@ type settings struct {
 // Option -> Functional Options : Awesome
 type Option func(*settings)
 
-// RulesFileOption is used to pass the location of your Rules File to the Handler func
-func RulesFileOption(path string) func(*settings) {
+// FileOption is used to pass the location of your Rules File to the Handler func
+func FileOption(path string) func(*settings) {
 	return func(s *settings) {
 		s.path = path
 	}
 }
 
-// RulesReaderOption is used to pass an io.Reader which contians your rules to the Handler func
+// ReaderOption is used to pass an io.Reader which contians your rules to the Handler func
 // This will take precendent over the File Option
-func RulesReaderOption(reader io.Reader) func(*settings) {
+func ReaderOption(reader io.Reader) func(*settings) {
 	return func(s *settings) {
 		s.rulesReader = reader
 	}

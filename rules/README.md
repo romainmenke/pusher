@@ -33,7 +33,7 @@ func main() {
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 
 			}),
-			linkheader.PathOption("./rules/example/rules.txt"),
+			rules.FileOption("./rules/example/rules.txt"),
 		),
 	)
 
