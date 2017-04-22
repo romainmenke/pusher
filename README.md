@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/romainmenke/pusher.svg?branch=master)](https://travis-ci.org/romainmenke/pusher)
-[![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher.svg)](https://middleware.vet#github.com/romainmenke/pusher)
 [![Go Report Card](https://goreportcard.com/badge/github.com/romainmenke/pusher)](https://goreportcard.com/report/github.com/romainmenke/pusher)
 [![codecov](https://codecov.io/gh/romainmenke/pusher/branch/master/graph/badge.svg)](https://codecov.io/gh/romainmenke/pusher)
 [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
