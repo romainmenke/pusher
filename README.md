@@ -12,7 +12,7 @@
 **pusher** is a collection of `http.Handler`'s to easily enable HTTP2 Push.
 
 - [link](https://github.com/romainmenke/pusher/tree/master/link) : a H2 Push handler based on `Link` headers.
-- [linkheader](https://github.com/romainmenke/pusher/tree/master/linkheader) : `Link` header placer.
+- [rules](https://github.com/romainmenke/pusher/tree/master/rules) : Simple rules to generate `Link` headers or pushes.
 - [parser](https://github.com/romainmenke/pusher/tree/master/parser) : html body parser -> generates Push Frames / Link Headers for you.
 
 Checkout the sub-packages for more details.
@@ -33,17 +33,19 @@ You probably already saw this code snippet from the [go blog](https://blog.golan
     })
 ```
 
-But obviously you don't want to hard code pushes for all your assets, especially in case of a proxy. That is where the [link](https://github.com/romainmenke/pusher/tree/master/link) package comes in. It reads the response headers and looks for `Link` headers. If found it transforms these into Pushes. This approach is based on how Cloudflare enables H2 Push.
+But obviously you don't want to hard code pushes for all your assets, especially in case of a proxy. That is where these handlers come in. Just choose the right one for the job.
 
-Then you can simply do this:
-```go
-func main() {
-	link.Handler(YourHandlerHere)
-}
-```
+### Proxy Server
 
-If you have a go server and don't have an easy method to add these `Link` headers you can checkout the [linkheader](https://github.com/romainmenke/pusher/tree/master/linkheader) package. It does all the heavy lifting for you.
+If you run a proxy server and want to enable H2 Push for all requests coming through, you implement the `link` pkg Handler and add `Link` headers on the source server. This approach is based on how Cloudflare enables H2 Push.
 
+### Client Side Rendered
+
+Client Side Rendered websites often have known critical assets like the js bundle. In this case it makes sense to have a couple of rules for which assets to push for a certain path. This is what the `rules` pkg does. It adds `Link` headers or sends Pushes depending on your setup based on simple rules.
+
+### Server Side Rendered
+
+A Server Side Rendered website with a CMS doesn't have known critical assets at deploy time. The `parser` pkg reads the first 1024 bytes from every html response and adds `Link` headers or sends Pushes depending on your setup.
 
 ----
 

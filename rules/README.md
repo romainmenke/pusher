@@ -1,14 +1,14 @@
 [![Build Status](https://travis-ci.org/romainmenke/pusher.svg?branch=master)](https://travis-ci.org/romainmenke/pusher)
-[![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher/linkheader.svg)](https://middleware.vet#github.com/romainmenke/pusher/linkheader)
-[![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher/linkheader)
+[![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher/rules.svg)](https://middleware.vet#github.com/romainmenke/pusher/rules)
+[![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher/rules)
 
 <p align="center">
   <img src="https://cloud.githubusercontent.com/assets/11521496/24838540/070645b2-1d4a-11e7-9c39-900371d5fda3.png" width="250"/>
 </p>
 
-# LinkHeader
+# Rules
 
-**linkheader** makes it easy to add `Link` headers in a go server.
+**rules** adds `Link` headers / H2 Pushes based on rules.
 
 ---
 
@@ -27,13 +27,13 @@ import (
 func main() {
 
 	http.Handle("/",
-		linkheader.Handler(
+		rules.Handler(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 
 			}),
-			linkheader.PathOption("./linkheader/example/linkheaders.txt"),
+			linkheader.PathOption("./rules/example/rules.txt"),
 		),
 	)
 

@@ -3,21 +3,19 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/romainmenke/pusher/linkheader"
 )
 
 func main() {
 
 	http.Handle("/",
-		linkheader.Handler(
+		rules.Handler(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 				w.Header().Set("Cache-Control", "public, max-age=86400")
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			}),
-			linkheader.RulesFileOption("./linkheader/example/linkheaders.txt"),
+			rules.RulesFileOption("./linkheader/example/linkheaders.txt"),
 		),
 	)
 

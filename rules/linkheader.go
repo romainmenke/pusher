@@ -1,4 +1,4 @@
-package linkheader
+package rules
 
 import (
 	"bufio"
