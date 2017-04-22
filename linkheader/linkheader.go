@@ -11,7 +11,8 @@ import (
 )
 
 type settings struct {
-	path string
+	path        string
+	rulesReader io.Reader
 }
 
 // Option -> Functional Options : Awesome
@@ -21,6 +22,14 @@ type Option func(*settings)
 func RulesFileOption(path string) func(*settings) {
 	return func(s *settings) {
 		s.path = path
+	}
+}
+
+// RulesReaderOption is used to pass an io.Reader which contians your rules to the Handler func
+// This will take precendent over the File Option
+func RulesReaderOption(reader io.Reader) func(*settings) {
+	return func(s *settings) {
+		s.rulesReader = reader
 	}
 }
 
@@ -35,57 +44,48 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		option(s)
 	}
 
-	if s.path == "" {
+	if s.path == "" && s.rulesReader == nil {
 		return handler
 	}
 
-	pathMap, headerMap, err := read(s.path)
+	var (
+		reader io.Reader = s.rulesReader
+		err    error
+	)
+
+	if s.path != "" && reader == nil {
+		reader, err = os.Open(s.path)
+		if err != nil {
+			return handler
+		}
+	}
+
+	if closer, ok := reader.(io.Closer); ok {
+		defer closer.Close()
+	}
+
+	linkMap, assetMap, err := read(reader)
 	if err != nil {
 		return handler
 	}
 
 	mux := http.NewServeMux()
 
-	for path := range pathMap {
-		localPath := path
-		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-			defer handler.ServeHTTP(w, r)
-
-			if r.Method != common.Get {
-				return
-			}
-
-			m.RLock()
-			defer m.RUnlock()
-
-			if _, found := headerMap[r.URL.Path]; found {
-				return
-			}
-
-			for _, header := range pathMap[localPath] {
-				w.Header().Add(common.Link, header)
-			}
-		})
-
-		mux.Handle(path, h)
+	for path := range linkMap {
+		scopedPath := path
+		h := wrap(scopedPath, assetMap, linkMap, m, handler)
+		mux.Handle(scopedPath, h)
 	}
 
 	return mux
 }
 
-func read(filePath string) (map[string][]string, map[string]struct{}, error) {
+func read(rules io.Reader) (map[string][]string, map[string]struct{}, error) {
 
 	pathMap := make(map[string][]string)
 	headerMap := make(map[string]struct{})
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(rules)
 
 	currentPath := ""
 	currentHeaders := []string{}

@@ -20,14 +20,12 @@ func Handler(handler http.Handler) http.Handler {
 		}
 
 		// Get a responseWriter from the sync.Pool.
-		var rw = getResponseWriter(w, r)
+		rw := getResponseWriter(w, r)
 		// defer close the responseWriter.
 		// This returns it to the sync.Pool and zeroes all values and pointers.
 		defer rw.close()
 
-		// handle.
 		handler.ServeHTTP(rw, r)
-
 	})
 }
 
@@ -35,7 +33,7 @@ func Handler(handler http.Handler) http.Handler {
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	// Only GET requests should trigger Pushes.
-	if r.Method != common.Get {
+	if r.Method != http.MethodGet {
 		return false
 	}
 
