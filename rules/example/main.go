@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/romainmenke/pusher/rules"
 )
 
 func main() {
