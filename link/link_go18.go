@@ -12,22 +12,20 @@ import (
 func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		writer := w
-		defer handler.ServeHTTP(writer, r)
-
 		// If CanPush returns false, use the input handler.
 		// Else -> wrap it.
 		if !CanPush(w, r) {
+			handler.ServeHTTP(w, r)
 			return
 		}
 
 		// Get a responseWriter from the sync.Pool.
 		rw := getResponseWriter(w, r)
-		writer = rw
 		// defer close the responseWriter.
 		// This returns it to the sync.Pool and zeroes all values and pointers.
 		defer rw.close()
 
+		handler.ServeHTTP(rw, r)
 	})
 }
 
