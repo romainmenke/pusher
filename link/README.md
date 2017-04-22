@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/romainmenke/pusher.svg?branch=master)](https://travis-ci.org/romainmenke/pusher)
-[![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher.svg)](https://middleware.vet#github.com/romainmenke/pusher/link)
+[![MiddlewareVet](https://middleware.vet/github.com/romainmenke/pusher/link.svg)](https://middleware.vet#github.com/romainmenke/pusher/link)
 [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher/link)
 
 <p align="center">
