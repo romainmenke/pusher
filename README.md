@@ -4,7 +4,6 @@
 [![codecov](https://codecov.io/gh/romainmenke/pusher/branch/master/graph/badge.svg)](https://codecov.io/gh/romainmenke/pusher)
 [![GoDoc](https://godoc.org/github.com/romainmenke/pusher?status.svg)](https://godoc.org/github.com/romainmenke/pusher)
 
-
 <p align="center">
   <img src="https://cloud.githubusercontent.com/assets/11521496/24838540/070645b2-1d4a-11e7-9c39-900371d5fda3.png" width="250"/>
 </p>
