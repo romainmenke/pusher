@@ -1,8 +1,6 @@
 package common
 
 const (
-	// Get Method
-	Get = "GET"
 	// GoH2Pushed is the header key used to transmit Pushed Link header values
 	GoH2Pushed = "Go-H2-Pushed"
 	// HeaderAmountLimit is the max number of header values parsed

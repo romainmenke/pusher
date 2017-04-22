@@ -18,10 +18,16 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		writer := w
+		defer handler.ServeHTTP(writer, r)
+
+		if r.Method != http.MethodGet {
+			return
+		}
+
 		if s.withCache {
 			preloads := getFromCache(r.URL.RequestURI())
 			if preloads != nil {
-				defer handler.ServeHTTP(w, r)
 
 				if pusher, ok := w.(http.Pusher); ok && r.Header.Get(common.XForwardedFor) == "" {
 					for _, link := range preloads {
@@ -45,24 +51,20 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		// This returns it to the sync.Pool and zeroes all values and pointers.
 		defer rw.close()
 
-		var protoW http.ResponseWriter
 		switch r.Proto {
 		case protoHTTP11:
-			protoW = &responseWriterHTTP11{
+			writer = &responseWriterHTTP11{
 				responseWriter: rw,
 			}
 		case protoHTTP11TLS:
-			protoW = &responseWriterHTTP11TLS{
+			writer = &responseWriterHTTP11TLS{
 				responseWriter: rw,
 			}
 		case protoHTTP20:
-			protoW = &responseWriterHTTP2{
+			writer = &responseWriterHTTP2{
 				responseWriter: rw,
 			}
 		}
-
-		// handle.
-		handler.ServeHTTP(protoW, r)
 
 	})
 }

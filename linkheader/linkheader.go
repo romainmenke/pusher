@@ -39,36 +39,17 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 		return handler
 	}
 
-	pathMap, headerMap, err := read(s.path)
+	linkMap, assetMap, err := read(s.path)
 	if err != nil {
 		return handler
 	}
 
 	mux := http.NewServeMux()
 
-	for path := range pathMap {
-		localPath := path
-		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-			defer handler.ServeHTTP(w, r)
-
-			if r.Method != common.Get {
-				return
-			}
-
-			m.RLock()
-			defer m.RUnlock()
-
-			if _, found := headerMap[r.URL.Path]; found {
-				return
-			}
-
-			for _, header := range pathMap[localPath] {
-				w.Header().Add(common.Link, header)
-			}
-		})
-
-		mux.Handle(path, h)
+	for path := range linkMap {
+		scopedPath := path
+		h := wrap(scopedPath, assetMap, linkMap, m, handler)
+		mux.Handle(scopedPath, h)
 	}
 
 	return mux

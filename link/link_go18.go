@@ -12,6 +12,9 @@ import (
 func Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		writer := w
+		handler.ServeHTTP(writer, r)
+
 		// If CanPush returns false, use the input handler.
 		// Else -> wrap it.
 		if !CanPush(w, r) {
@@ -20,13 +23,11 @@ func Handler(handler http.Handler) http.Handler {
 		}
 
 		// Get a responseWriter from the sync.Pool.
-		var rw = getResponseWriter(w, r)
+		rw := getResponseWriter(w, r)
+		writer = rw
 		// defer close the responseWriter.
 		// This returns it to the sync.Pool and zeroes all values and pointers.
 		defer rw.close()
-
-		// handle.
-		handler.ServeHTTP(rw, r)
 
 	})
 }
@@ -35,7 +36,7 @@ func Handler(handler http.Handler) http.Handler {
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	// Only GET requests should trigger Pushes.
-	if r.Method != common.Get {
+	if r.Method != http.MethodGet {
 		return false
 	}
 
