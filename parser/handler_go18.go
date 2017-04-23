@@ -19,6 +19,7 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodGet {
+			handler.ServeHTTP(w, r)
 			return
 		}
 
@@ -64,6 +65,9 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 			protoWriter = &responseWriterHTTP2{
 				responseWriter: rw,
 			}
+		default:
+			handler.ServeHTTP(w, r)
+			return
 		}
 
 		handler.ServeHTTP(protoWriter, r)
