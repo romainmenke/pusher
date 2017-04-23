@@ -17,7 +17,7 @@ then
     go test -v -race $d
   done
 
-elif [[ $TRAVIS_GO_VERSION == 1.7* ]]
+elif [[ $TRAVIS_GO_VERSION == 1.8* ]]
 then
 
   for d in $(go list ./... | grep -v vendor); do
