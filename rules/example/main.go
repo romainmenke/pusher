@@ -17,7 +17,7 @@ func main() {
 
 				http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 			}),
-			rules.FileOption("./linkheader/example/linkheaders.txt"),
+			rules.FileOption("./rules/example/rules.txt"),
 		),
 	)
 
