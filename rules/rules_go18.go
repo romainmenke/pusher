@@ -26,10 +26,15 @@ func wrap(path string, assetMap map[string]struct{}, linkMap map[string][]string
 		}
 
 		// Must be a pusher / Must not be behind a proxy / Must be proto 2 / Must be get
-		if pusher, ok := w.(http.Pusher); ok && r.Header.Get(common.XForwardedFor) == "" && r.Method != http.MethodHead && r.ProtoMajor == 2 {
+		if pusher, ok := w.(http.Pusher); ok && r.Header.Get(common.XForwardedFor) == "" && r.ProtoMajor == 2 {
 
 			for _, header := range linkMap[path] {
-				pusher.Push(common.ParseLinkHeader(header), &http.PushOptions{Header: r.Header})
+				pusher.Push(common.ParseLinkHeader(header),
+					&http.PushOptions{
+						Header: r.Header,
+						Method: r.Method,
+					},
+				)
 			}
 
 		} else {

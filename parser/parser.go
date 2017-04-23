@@ -64,7 +64,6 @@ func (w *responseWriter) extractLinks() chan common.Preloadable {
 					}
 				} else if preload != "" {
 					preloads[preload] = struct{}{}
-					preload = ""
 				}
 
 			}

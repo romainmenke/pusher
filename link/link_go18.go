@@ -33,7 +33,7 @@ func Handler(handler http.Handler) http.Handler {
 func CanPush(w http.ResponseWriter, r *http.Request) bool {
 
 	// Only GET requests should trigger Pushes.
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		return false
 	}
 
@@ -93,6 +93,7 @@ PUSH_LOOP:
 			// Pass the original Request Headers by reference.
 			err := w.Push(pushLink, &http.PushOptions{
 				Header: w.request.Header,
+				Method: w.request.Method,
 			})
 
 			// Handle Push err.
