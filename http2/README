@@ -1,0 +1,3 @@
+Local Copy of the http2 package to get at some of the internals for testing purposes.
+
+This will be removed when client support for http2 push is implemented in the standard library.
