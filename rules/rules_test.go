@@ -1,4 +1,4 @@
-package rules
+package rules_test
 
 import (
 	"net/http"
@@ -6,11 +6,24 @@ import (
 	"testing"
 
 	"github.com/fd/httpmiddlewarevet"
+	"github.com/romainmenke/pusher/rules"
 )
+
+func TestMiddlewareWithoutOption(t *testing.T) {
+	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
+		return rules.Handler(h)
+	})
+}
 
 func TestMiddlewareWithFileOption(t *testing.T) {
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return Handler(h, FileOption("./rules/example/rules.txt"))
+		return rules.Handler(h, rules.FileOption("./rules/example/rules.txt"))
+	})
+}
+
+func TestMiddlewareWithBadFileOption(t *testing.T) {
+	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
+		return rules.Handler(h, rules.FileOption("./example/rules.txt"))
 	})
 }
 
@@ -19,6 +32,8 @@ func TestMiddlewareWithTextOption(t *testing.T) {
 	reader := strings.NewReader(`/
 </css/stylesheet.css>; rel=preload; as=style;
 </fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;
+/broken_a>; rel=preload;
+</broken_b>
 
 /alpha.html
 </css/stylesheet.css>; rel=preload; as=style;
@@ -41,9 +56,11 @@ func TestMiddlewareWithTextOption(t *testing.T) {
 /gamma-b.html
 </css/stylesheet.css>; rel=preload; as=style;
 </fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;
-</call.json>; rel=preload;`)
+</call.json>; rel=preload;
+
+`)
 
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return Handler(h, ReaderOption(reader))
+		return rules.Handler(h, rules.ReaderOption(reader))
 	})
 }

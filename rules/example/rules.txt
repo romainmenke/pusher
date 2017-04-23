@@ -1,6 +1,8 @@
 /
 </css/stylesheet.css>; rel=preload; as=style;
 </fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;
+/broken>; rel=preload;
+</broken>;
 
 /alpha.html
 </css/stylesheet.css>; rel=preload; as=style;

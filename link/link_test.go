@@ -12,7 +12,7 @@ import (
 	"github.com/romainmenke/pusher/link"
 )
 
-func TestHandler(t *testing.T) {
+func TestHandlerGet(t *testing.T) {
 
 	var (
 		server *httptest.Server
@@ -39,7 +39,13 @@ func TestHandler(t *testing.T) {
 		}
 		rt.TLSClientConfig.InsecureSkipVerify = true
 	}
-	client.Get(server.URL)
+	resp, err := client.Get(server.URL)
+	if err != nil {
+		t.Fail()
+	}
+	if resp == nil {
+		t.Fail()
+	}
 }
 
 func handlerBenchmarkFactory(length int) func(b *testing.B) {
@@ -82,7 +88,13 @@ func handlerBenchmarkFactory(length int) func(b *testing.B) {
 
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
-				client.Get(server.URL)
+				resp, err := client.Get(server.URL)
+				if err != nil {
+					b.Fail()
+				}
+				if resp == nil {
+					b.Fail()
+				}
 			}
 		})
 	}
@@ -128,7 +140,13 @@ func defaultHandlerBenchmarkFactory(length int) func(b *testing.B) {
 
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
-				client.Get(server.URL)
+				resp, err := client.Get(server.URL)
+				if err != nil {
+					b.Fail()
+				}
+				if resp == nil {
+					b.Fail()
+				}
 			}
 		})
 	}
@@ -211,7 +229,13 @@ func BenchmarkHandler_WorstCase(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			client.Get(server.URL)
+			resp, err := client.Get(server.URL)
+			if err != nil {
+				b.Fail()
+			}
+			if resp == nil {
+				b.Fail()
+			}
 		}
 	})
 }
@@ -262,7 +286,13 @@ func BenchmarkDefaultHandler_WorstCase(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			client.Get(server.URL)
+			resp, err := client.Get(server.URL)
+			if err != nil {
+				b.Fail()
+			}
+			if resp == nil {
+				b.Fail()
+			}
 		}
 	})
 }

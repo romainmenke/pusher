@@ -39,5 +39,6 @@ func wrap(path string, assetMap map[string]struct{}, linkMap map[string][]string
 			}
 
 		}
+
 	})
 }

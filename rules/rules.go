@@ -50,18 +50,20 @@ func Handler(handler http.Handler, options ...Option) http.Handler {
 
 	var (
 		reader io.Reader = s.rulesReader
+		file   *os.File
 		err    error
 	)
 
 	if s.path != "" && reader == nil {
-		reader, err = os.Open(s.path)
+		file, err = os.Open(s.path)
 		if err != nil {
 			return handler
 		}
+		reader = file
 	}
 
-	if closer, ok := reader.(io.Closer); ok {
-		defer closer.Close()
+	if file != nil {
+		defer file.Close()
 	}
 
 	linkMap, assetMap, err := read(reader)
@@ -92,7 +94,7 @@ func read(rules io.Reader) (map[string][]string, map[string]struct{}, error) {
 
 	for scanner.Scan() {
 		txt := scanner.Text()
-		if len(txt) > 0 && txt[:1] == "/" {
+		if len(txt) > 0 && txt[:1] == "/" && currentPath == "" {
 			currentHeaders = []string{}
 			currentPath = txt
 			continue
@@ -100,7 +102,7 @@ func read(rules io.Reader) (map[string][]string, map[string]struct{}, error) {
 		if txt == "-" {
 			continue
 		}
-		if currentPath != "" && len(txt) > 0 && txt[:1] == "<" {
+		if currentPath != "" && len(txt) > 0 {
 			link := common.ParseLinkHeader(txt)
 			if link == "" {
 				continue
@@ -117,6 +119,10 @@ func read(rules io.Reader) (map[string][]string, map[string]struct{}, error) {
 			currentHeaders = []string{}
 		}
 
+	}
+
+	if currentPath != "" {
+		pathMap[currentPath] = currentHeaders
 	}
 
 	if err := scanner.Err(); err != nil {
