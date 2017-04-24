@@ -25,7 +25,7 @@ func FileOption(path string) func(*settings) {
 	}
 }
 
-// ReaderOption is used to pass an io.Reader which contians your rules to the Handler func
+// ReaderOption is used to pass an io.Reader which contains your rules to the Handler func
 // This will take precendent over the File Option
 func ReaderOption(reader io.Reader) func(*settings) {
 	return func(s *settings) {
