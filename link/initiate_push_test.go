@@ -17,7 +17,7 @@ func TestInitatePush(t *testing.T) {
 		Method:     "GET",
 		ProtoMajor: 2,
 		Header: http.Header{
-			"Foo": []string{"Baz"},
+			"Accept-Encoding": []string{"gzip"},
 		},
 	}
 	testW := &testWriter{
@@ -44,7 +44,7 @@ func TestInitatePush(t *testing.T) {
 		t.Fatal("bad options")
 	}
 
-	if len(testW.options.Header["Foo"]) != 1 || testW.options.Header["Foo"][0] != "Baz" {
+	if len(testW.options.Header["Accept-Encoding"]) != 1 || testW.options.Header["Accept-Encoding"][0] != "gzip" {
 		t.Fatal("bad options header")
 	}
 }
@@ -87,7 +87,7 @@ func TestInitatePush_Mixed(t *testing.T) {
 		Method:     "GET",
 		ProtoMajor: 2,
 		Header: http.Header{
-			"Foo": []string{"Baz"},
+			"Accept-Encoding": []string{"gzip"},
 		},
 	}
 	testW := &testWriter{
@@ -120,7 +120,7 @@ func TestInitatePush_Mixed(t *testing.T) {
 		t.Fatal("bad options")
 	}
 
-	if len(testW.options.Header["Foo"]) != 1 || testW.options.Header["Foo"][0] != "Baz" {
+	if len(testW.options.Header["Accept-Encoding"]) != 1 || testW.options.Header["Accept-Encoding"][0] != "gzip" {
 		t.Fatal("bad options header")
 	}
 
