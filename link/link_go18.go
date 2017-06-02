@@ -71,6 +71,9 @@ func InitiatePush(w *responseWriter) { // 0 allocs
 		return
 	}
 
+	pushHeader := http.Header{}
+	copyPushSafeHeader(pushHeader, w.request.Header)
+
 	// splitIndex is used to separate Link and Push values without creating a new []string{}.
 	var splitIndex int
 
@@ -88,9 +91,6 @@ PUSH_LOOP:
 		// When not empty -> Push.
 		pushLink := common.ParseLinkHeader(link)
 		if pushLink != "" {
-
-			pushHeader := http.Header{}
-			copyPushSafeHeader(pushHeader, w.request.Header)
 
 			// Attempt to send a Push.
 			// Pass the original Request Headers by reference.
