@@ -89,10 +89,13 @@ PUSH_LOOP:
 		pushLink := common.ParseLinkHeader(link)
 		if pushLink != "" {
 
+			pushHeader := http.Header{}
+			copyPushSafeHeader(pushHeader, w.request.Header)
+
 			// Attempt to send a Push.
 			// Pass the original Request Headers by reference.
 			err := w.Push(pushLink, &http.PushOptions{
-				Header: w.request.Header,
+				Header: pushHeader,
 				Method: w.request.Method,
 			})
 
