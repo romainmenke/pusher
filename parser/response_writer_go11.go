@@ -30,9 +30,9 @@ func (w *responseWriter) Write(buf []byte) (int, error) {
 				break
 			}
 		}
-
-		w.ResponseWriter.WriteHeader(w.statusCode)
 	}
+
+	w.ResponseWriter.WriteHeader(w.statusCode)
 
 	return w.ResponseWriter.Write(buf)
 }

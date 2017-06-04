@@ -1,26 +1,35 @@
 // +build go1.8
 
-package link
+package casper
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 // responseWriter transforms Link Header values into H2 Pushes
 type responseWriter struct {
 	// http.ResponseWriter is the wrapper http.ResponseWriter
 	http.ResponseWriter
-	// request is the original *http.Request
-	request *http.Request
 	// statusCode is used to temporarily store the http status code
 	statusCode int
+
+	ctx context.Context
+
+	hashValues []uint
+
+	somethingPushed bool
 
 	headerWritten bool
 }
 
 // reset zeroes out a responseWriter
 func (w *responseWriter) reset() *responseWriter {
-	w.request = nil
 	w.ResponseWriter = nil
 	w.statusCode = 0
+	w.ctx = nil
+	w.hashValues = w.hashValues[:0]
+	w.somethingPushed = false
 	w.headerWritten = false
 	return w
 }
@@ -37,7 +46,6 @@ func (w *responseWriter) Write(b []byte) (int, error) {
 		w.headerWritten = true
 		w.WriteHeader(200)
 	}
-
 	return w.ResponseWriter.Write(b)
 }
 
@@ -45,7 +53,6 @@ func (w *responseWriter) Write(b []byte) (int, error) {
 // After optionally sending Pushes WriteHeader sends an HTTP response header with status code.
 func (w *responseWriter) WriteHeader(s int) {
 	w.headerWritten = true
-
 	// Temporarily store the status code.
 	if w.statusCode == 0 {
 		w.statusCode = s
@@ -53,7 +60,7 @@ func (w *responseWriter) WriteHeader(s int) {
 
 	// If the status code is in the 200 range -> generate Pushes.
 	if w.statusCode/100 == 2 {
-		InitiatePush(w)
+		w.setCookie()
 	}
 
 	// Call WriteHeader on the wrapper http.ResponseWriter
@@ -73,16 +80,4 @@ func (w *responseWriter) Flush() {
 // away.
 func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
-}
-
-// Push initiates an HTTP/2 server push. This constructs a synthetic
-// request using the given target and options, serializes that request
-// into a PUSH_PROMISE frame, then dispatches that request using the
-// server's request handler. If opts is nil, default options are used.
-func (w *responseWriter) Push(target string, opts *http.PushOptions) error {
-	pusher, ok := w.ResponseWriter.(http.Pusher)
-	if ok && pusher != nil {
-		return pusher.Push(target, opts)
-	}
-	return http.ErrNotSupported
 }

@@ -12,6 +12,7 @@
 **pusher** is a collection of `http.Handler`'s to easily enable HTTP2 Push.
 
 - [link](https://github.com/romainmenke/pusher/tree/master/link) : a H2 Push handler based on `Link` headers.
+- [casper](https://github.com/romainmenke/pusher/tree/master/casper) : CASPer handler.
 - [rules](https://github.com/romainmenke/pusher/tree/master/rules) : Simple rules to generate `Link` headers or pushes.
 - [parser](https://github.com/romainmenke/pusher/tree/master/parser) : html body parser -> generates Push Frames / Link Headers for you.
 

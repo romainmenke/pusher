@@ -30,6 +30,7 @@ func TestInitatePush(t *testing.T) {
 		testW,
 		request,
 		0,
+		false,
 	}
 
 	writer.Header()["Link"] = []string{"</style.css>; rel=preload;"}
@@ -67,6 +68,7 @@ func TestInitatePush_AbsoluteLink(t *testing.T) {
 		testW,
 		request,
 		0,
+		false,
 	}
 
 	writer.Header()["Link"] = []string{"<www.site.com/style.css>; rel=preload;"}
@@ -100,6 +102,7 @@ func TestInitatePush_Mixed(t *testing.T) {
 		testW,
 		request,
 		0,
+		false,
 	}
 
 	writer.Header()["Link"] = []string{
