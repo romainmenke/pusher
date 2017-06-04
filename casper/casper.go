@@ -35,6 +35,7 @@ import (
 	"strings"
 
 	"github.com/romainmenke/pusher/casper/internal/encoding/golomb"
+	"github.com/romainmenke/pusher/casper/internal/intsort"
 )
 
 const (
@@ -82,9 +83,7 @@ func (c *Casper) hash(p []byte) uint {
 func (c *Casper) generateCookie(hashValues []uint) (*http.Cookie, error) {
 
 	// golomb encoder expect the given array is sorted.
-	sort.Slice(hashValues, func(i, j int) bool {
-		return hashValues[i] < hashValues[j]
-	})
+	sort.Sort(intsort.Uints(hashValues))
 
 	var buf bytes.Buffer
 	encoder := base64.NewEncoder(base64.RawURLEncoding, &buf)

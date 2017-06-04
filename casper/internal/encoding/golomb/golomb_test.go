@@ -37,6 +37,7 @@ import (
 	"testing"
 
 	"github.com/romainmenke/pusher/casper/internal/bits"
+	"github.com/romainmenke/pusher/casper/internal/intsort"
 )
 
 func TestDecode(t *testing.T) {
@@ -181,9 +182,7 @@ func ExampleEncode() {
 	for sc.Scan() {
 		a = append(a, hashF(sc.Bytes()))
 	}
-	sort.Slice(a, func(i, j int) bool {
-		return a[i] < a[j]
-	})
+	sort.Sort(intsort.Uints(a))
 
 	// Encode hash value array to Golomb-coded sets
 	// and write it to buffer.
