@@ -23,6 +23,7 @@ func TestWrite(t *testing.T) {
 		recorder,
 		nil,
 		0,
+		false,
 	}
 
 	writer.Write([]byte("foo"))
@@ -48,6 +49,7 @@ func TestWriteB(t *testing.T) {
 		recorder,
 		nil,
 		0,
+		false,
 	}
 
 	writer.WriteHeader(301)
@@ -74,6 +76,7 @@ func TestWriteHeader(t *testing.T) {
 		recorder,
 		nil,
 		0,
+		false,
 	}
 
 	writer.WriteHeader(301)
