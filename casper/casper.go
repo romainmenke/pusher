@@ -45,7 +45,7 @@ import (
 const (
 	// defaultCookieName is default cookie name for storing
 	// a fingerprint of asset files being cached by the browser.
-	defaultCookieName = "X-H2-Casper"
+	defaultCookieName = "H2-Casper"
 
 	// defaultCookiePath is default cookie path to be used for
 	// generating cookie to return.

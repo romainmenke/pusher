@@ -127,7 +127,7 @@ func TestInitatePush_Mixed(t *testing.T) {
 		t.Fatal("bad options header")
 	}
 
-	if writer.Header()["X-H2-Pushed"][0] != "</style.css>; rel=preload;" {
+	if writer.Header()["H2-Pushed"][0] != "</style.css>; rel=preload;" {
 		t.Fatal("bad push header")
 	}
 
@@ -179,7 +179,7 @@ func TestInitiatePushLinkLimit(t *testing.T) {
 		t.Fatal("bad link header", len(link))
 	}
 
-	pushed, ok := writer.Header()["X-H2-Pushed"]
+	pushed, ok := writer.Header()["H2-Pushed"]
 	if !ok {
 		t.Fatal("missing push header")
 	}
@@ -285,7 +285,7 @@ func TestInitiatePushRandomErr(t *testing.T) {
 
 	InitiatePush(writer)
 
-	pushed, ok := writer.Header()["X-H2-Pushed"]
+	pushed, ok := writer.Header()["H2-Pushed"]
 	if !ok {
 		t.Fatal("missing push header")
 	}
@@ -326,7 +326,7 @@ func TestInitiatePushRecursiveErr(t *testing.T) {
 
 	InitiatePush(writer)
 
-	pushed, ok := writer.Header()["X-H2-Pushed"]
+	pushed, ok := writer.Header()["H2-Pushed"]
 	if !ok {
 		t.Fatal("missing push header")
 	}
@@ -367,7 +367,7 @@ func TestInitiatePushMaxStreamsErr(t *testing.T) {
 
 	InitiatePush(writer)
 
-	pushed, ok := writer.Header()["X-H2-Pushed"]
+	pushed, ok := writer.Header()["H2-Pushed"]
 	if !ok {
 		t.Fatal("missing push header")
 	}

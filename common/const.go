@@ -2,7 +2,7 @@ package common
 
 const (
 	// GoH2Pushed is the header key used to transmit Pushed Link header values
-	GoH2Pushed = "X-H2-Pushed"
+	GoH2Pushed = "H2-Pushed"
 	// HeaderAmountLimit is the max number of header values parsed
 	HeaderAmountLimit = 64
 	// PushAmountLimit is the max number of pushes sent
