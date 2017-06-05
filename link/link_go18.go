@@ -104,7 +104,7 @@ PUSH_LOOP:
 	}
 
 	// Move the pushed values to a new Key to prevent the browser from requesting it.
-	w.ResponseWriter.Header()[common.GoH2Pushed] = linkHeaders[:splitIndex]
+	w.ResponseWriter.Header()[common.H2Pushed] = linkHeaders[:splitIndex]
 	// Update 'Link' with the remaining values.
 	w.ResponseWriter.Header()[common.Link] = linkHeaders[splitIndex:]
 
