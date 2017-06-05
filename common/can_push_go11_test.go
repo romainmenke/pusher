@@ -17,9 +17,7 @@ func TestCanPush(t *testing.T) {
 		Header:     http.Header{},
 	}
 	var writer http.ResponseWriter
-	writer = &testWriter{
-		httptest.NewRecorder(),
-	}
+	writer = httptest.NewRecorder()
 
 	if common.CanPush(writer, request) {
 		t.Fail()
@@ -33,9 +31,7 @@ func TestCanPush_H1(t *testing.T) {
 		Header:     http.Header{},
 	}
 	var writer http.ResponseWriter
-	writer = &testWriter{
-		httptest.NewRecorder(),
-	}
+	writer = httptest.NewRecorder()
 
 	if common.CanPush(writer, request) {
 		t.Fail()
@@ -51,9 +47,7 @@ func TestCanPush_Forwarded(t *testing.T) {
 		},
 	}
 	var writer http.ResponseWriter
-	writer = &testWriter{
-		httptest.NewRecorder(),
-	}
+	writer = httptest.NewRecorder()
 
 	if common.CanPush(writer, request) {
 		t.Fail()
@@ -81,19 +75,9 @@ func TestCanPush_NoGet(t *testing.T) {
 		Header:     http.Header{},
 	}
 	var writer http.ResponseWriter
-	writer = &testWriter{
-		httptest.NewRecorder(),
-	}
+	writer = httptest.NewRecorder()
 
 	if common.CanPush(writer, request) {
 		t.Fail()
 	}
-}
-
-type testWriter struct {
-	http.ResponseWriter
-}
-
-func (w *testWriter) Push(target string, opts *http.PushOptions) error {
-	return nil
 }
