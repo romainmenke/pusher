@@ -5,6 +5,8 @@ const (
 	GoH2Pushed = "Go-H2-Pushed"
 	// HeaderAmountLimit is the max number of header values parsed
 	HeaderAmountLimit = 64
+	// PushAmountLimit is the max number of pushes sent
+	PushAmountLimit = 64
 	// HeaderLengthLimit is the max length of a header value, longer values are skipped
 	HeaderLengthLimit = 1024
 	// Link Header Key

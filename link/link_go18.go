@@ -14,7 +14,7 @@ func Handler(handler http.Handler) http.Handler {
 
 		// If CanPush returns false, use the input handler.
 		// Else -> wrap it.
-		if !CanPush(w, r) {
+		if !common.CanPush(w, r) {
 			handler.ServeHTTP(w, r)
 			return
 		}
@@ -27,34 +27,6 @@ func Handler(handler http.Handler) http.Handler {
 
 		handler.ServeHTTP(rw, r)
 	})
-}
-
-// CanPush checks if the Request is Pushable and the ResponseWriter supports H2 Push.
-func CanPush(w http.ResponseWriter, r *http.Request) bool {
-
-	// Only GET requests should trigger Pushes.
-	if r.Method != http.MethodGet && r.Method != http.MethodHead {
-		return false
-	}
-
-	// Push is only supported from HTTP2.0.
-	if r.ProtoMajor < 2 {
-		return false
-	}
-
-	// The http.ResponseWriter has to be http.Pusher.
-	_, ok := w.(http.Pusher)
-	if !ok {
-		return false
-	}
-
-	// The request must not be proxied.
-	// Proxies might not support forwarding Pushes.
-	if r.Header.Get(common.XForwardedFor) != "" {
-		return false
-	}
-
-	return true
 }
 
 // InitiatePush parses Link Headers of a response to generate Push Frames.
@@ -82,7 +54,7 @@ PUSH_LOOP:
 
 		// Limit the number of values parsed.
 		// This is not based on how many are eventually pushed.
-		if index >= common.HeaderAmountLimit {
+		if index >= common.PushAmountLimit {
 			break PUSH_LOOP
 		}
 

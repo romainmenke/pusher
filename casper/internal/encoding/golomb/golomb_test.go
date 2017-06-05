@@ -109,7 +109,8 @@ func TestDecodeAll(t *testing.T) {
 
 	for _, tc := range cases {
 		rd := bytes.NewReader(tc.input)
-		got, err := DecodeAll(rd, tc.p)
+		got := []uint{}
+		err := DecodeAll(rd, tc.p, &got)
 		if err != nil {
 			t.Fatal(err)
 		}

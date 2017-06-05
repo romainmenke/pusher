@@ -36,28 +36,26 @@ import (
 var errPadding = errors.New("padding")
 
 // DecodeAll decodes...
-func DecodeAll(rd io.Reader, p uint) ([]uint, error) {
-	// TODO(tcnksm): Receive dst from outside as argument.
-	var dst []uint
+func DecodeAll(rd io.Reader, p uint, dst *[]uint) error {
 	br := bits.NewReader(rd)
 	prev := uint(0)
 	for {
 		v, err := decode(br, p)
 		if err == errPadding {
 			// Ignore padding value
-			return dst, nil
+			return nil
 		}
 
 		if err == io.EOF {
-			dst = append(dst, v+prev)
-			return dst, nil
+			*dst = append(*dst, v+prev)
+			return nil
 		}
 
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		dst = append(dst, v+prev)
+		*dst = append(*dst, v+prev)
 
 		prev = v + prev
 	}

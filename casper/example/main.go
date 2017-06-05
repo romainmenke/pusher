@@ -11,7 +11,7 @@ import (
 func main() {
 
 	http.Handle("/",
-		casper.Handler(1<<6, 10,
+		casper.Handler(
 			link.Handler(
 				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
