@@ -38,7 +38,7 @@ var errPadding = errors.New("padding")
 // DecodeAll decodes...
 func DecodeAll(rd io.Reader, p uint, dst *[]uint) error {
 	br := bits.NewReader(rd)
-	prev := uint(0)
+	var prev uint
 	for {
 		v, err := decode(br, p)
 		if err == errPadding {
@@ -113,7 +113,7 @@ func Encode(w io.Writer, src []uint, p uint) error {
 	// TODO(tcnksm)
 	wr := bits.NewWriter(w)
 
-	prev := uint(0)
+	var prev uint
 	for _, h := range src {
 		v := h - prev
 		q, r := v/p, v%p
