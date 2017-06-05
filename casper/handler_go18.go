@@ -9,11 +9,20 @@ import (
 )
 
 // Handler wraps an http.Handler with H2 Push functionality.
-func Handler(handler http.Handler) http.Handler {
+func Handler(handler http.Handler, options ...Option) http.Handler {
 
 	c := &Casper{
-		p: uint(common.PushAmountLimit * common.PushAmountLimit),
-		n: uint(common.PushAmountLimit),
+		p:        uint(common.PushAmountLimit * common.PushAmountLimit),
+		n:        uint(common.PushAmountLimit),
+		settings: settings{},
+	}
+
+	for _, opt := range options {
+		opt(&c.settings)
+	}
+
+	if c.settings.cookieMaxAge == 0 {
+		c.settings.cookieMaxAge = 3600
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

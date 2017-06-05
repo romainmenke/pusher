@@ -40,10 +40,14 @@ func main() {
 					default:
 					}
 
+					w.Header().Add("Cache-Control", "max-age=1200")
+
 					http.FileServer(http.Dir("./example/static")).ServeHTTP(w, r)
 
 				}),
 			),
+			casper.InferCookieMaxAgeFromResponse(),
+			casper.DefaultCookieMaxAge(2400),
 		),
 	)
 

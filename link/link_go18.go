@@ -9,7 +9,14 @@ import (
 )
 
 // Handler wraps an http.Handler with H2 Push functionality.
-func Handler(handler http.Handler) http.Handler {
+func Handler(handler http.Handler, options ...Option) http.Handler {
+
+	// future proof this now in case we one day need options
+	// s := &settings{}
+	// for _, opt := range options {
+	// 	opt(s)
+	// }
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// If CanPush returns false, use the input handler.

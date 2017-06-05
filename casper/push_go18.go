@@ -60,7 +60,7 @@ func (w *responseWriter) setCookie() error {
 		return nil
 	}
 
-	cookie, err := c.generateCookie(w.hashValues)
+	cookie, err := c.generateCookie(w.hashValues, w.Header())
 	if err != nil {
 		return err
 	}

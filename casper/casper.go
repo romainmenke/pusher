@@ -32,6 +32,7 @@ import (
 	"hash"
 	"io"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -44,7 +45,7 @@ import (
 const (
 	// defaultCookieName is default cookie name for storing
 	// a fingerprint of asset files being cached by the browser.
-	defaultCookieName = "X-Go-Casper"
+	defaultCookieName = "X-H2-Casper"
 
 	// defaultCookiePath is default cookie path to be used for
 	// generating cookie to return.
@@ -53,8 +54,9 @@ const (
 
 // Casper provides a interface for cache-aware HTTP/2 server push.
 type Casper struct {
-	p uint
-	n uint
+	p        uint
+	n        uint
+	settings settings
 
 	// skipPush decides executing actual server push or not. This should
 	// be used only in testing.
@@ -150,8 +152,18 @@ func init() {
 	}
 }
 
+var maxAgeRegexp *regexp.Regexp
+
+func init() {
+	var err error
+	maxAgeRegexp, err = regexp.Compile(`max-age=(\d*)`)
+	if err != nil {
+		panic(err)
+	}
+}
+
 // generateCookie generates cookie from the given hash values.
-func (c *Casper) generateCookie(hashValues []uint) (*http.Cookie, error) {
+func (c *Casper) generateCookie(hashValues []uint, responseHeader http.Header) (*http.Cookie, error) {
 
 	// golomb encoder expect the given array is sorted.
 	sort.Sort(intsort.Uints(hashValues))
@@ -167,10 +179,32 @@ func (c *Casper) generateCookie(hashValues []uint) (*http.Cookie, error) {
 		return nil, fmt.Errorf("failed to close encoder: %s", err)
 	}
 
+	var maxAge int
+	if responseHeader != nil && c.settings.inferCookieMaxAgeFromResponse {
+		ccValues, ok := responseHeader["Cache-Control"]
+		if ok {
+		VALUE_LOOP:
+			for _, cc := range ccValues {
+				matches := maxAgeRegexp.FindStringSubmatch(cc)
+				if len(matches) == 2 {
+					m, err := strconv.ParseInt(matches[1], 10, 64)
+					if err != nil {
+						continue VALUE_LOOP
+					}
+					maxAge = int(m)
+				}
+			}
+		}
+	}
+
+	if maxAge == 0 {
+		maxAge = c.settings.cookieMaxAge
+	}
+
 	return &http.Cookie{
 		Name:   defaultCookieName,
 		Value:  encoder.buf.String(),
-		MaxAge: 3600,
+		MaxAge: maxAge,
 		Path:   defaultCookiePath,
 	}, nil
 }
