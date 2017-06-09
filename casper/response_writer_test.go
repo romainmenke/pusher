@@ -9,6 +9,6 @@ import (
 
 func TestMiddleware(t *testing.T) {
 	httpmiddlewarevet.Vet(t, func(h http.Handler) http.Handler {
-		return Handler(1<<6, 10, h)
+		return Handler(h)
 	})
 }

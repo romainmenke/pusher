@@ -4,6 +4,6 @@ package casper
 
 import "net/http"
 
-func Handler(p int, n int, handler http.Handler) http.Handler {
+func Handler(handler http.Handler, options ...Option) http.Handler {
 	return handler
 }
