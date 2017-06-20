@@ -3,6 +3,8 @@ package parser
 import (
 	"bytes"
 	"net/http"
+
+	"github.com/romainmenke/pusher/common"
 )
 
 type responseWriter struct {
@@ -42,6 +44,10 @@ func (w *responseWriter) WriteHeader(s int) {
 
 func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w *responseWriter) WriteString(s string) (n int, err error) {
+	return w.ResponseWriter.(common.StringWriter).WriteString(s)
 }
 
 func (w *responseWriter) Flush() {

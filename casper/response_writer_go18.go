@@ -5,6 +5,8 @@ package casper
 import (
 	"context"
 	"net/http"
+
+	"github.com/romainmenke/pusher/common"
 )
 
 // responseWriter transforms Link Header values into H2 Pushes
@@ -80,4 +82,8 @@ func (w *responseWriter) Flush() {
 // away.
 func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w *responseWriter) WriteString(s string) (n int, err error) {
+	return w.ResponseWriter.(common.StringWriter).WriteString(s)
 }

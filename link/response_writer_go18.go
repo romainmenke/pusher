@@ -2,7 +2,11 @@
 
 package link
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/romainmenke/pusher/common"
+)
 
 // responseWriter transforms Link Header values into H2 Pushes
 type responseWriter struct {
@@ -73,6 +77,10 @@ func (w *responseWriter) Flush() {
 // away.
 func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w *responseWriter) WriteString(s string) (n int, err error) {
+	return w.ResponseWriter.(common.StringWriter).WriteString(s)
 }
 
 // Push initiates an HTTP/2 server push. This constructs a synthetic
