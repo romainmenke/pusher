@@ -5,6 +5,8 @@ package casper
 import (
 	"context"
 	"net/http"
+
+	"github.com/romainmenke/pusher/common"
 )
 
 // responseWriter transforms Link Header values into H2 Pushes
@@ -47,6 +49,14 @@ func (w *responseWriter) Write(b []byte) (int, error) {
 		w.WriteHeader(200)
 	}
 	return w.ResponseWriter.Write(b)
+}
+
+func (w *responseWriter) WriteString(s string) (n int, err error) {
+	if w.statusCode == 0 && !w.headerWritten {
+		w.headerWritten = true
+		w.WriteHeader(200)
+	}
+	return w.ResponseWriter.(common.StringWriter).WriteString(s)
 }
 
 // WriteHeader will inspect the current response Header and generate H2 Pushes from Link Headers.

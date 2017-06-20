@@ -59,6 +59,57 @@ func TestWrite(t *testing.T) {
 
 }
 
+func TestWriteString(t *testing.T) {
+
+	s := &settings{}
+	WithCache()(s)
+	CacheDuration(time.Hour * 1)(s)
+
+	u, _ := url.Parse("/")
+
+	request := &http.Request{
+		Method: "GET",
+		URL:    u,
+	}
+
+	recorder := httptest.NewRecorder()
+	writer := getResponseWriter(s, recorder, request)
+	defer writer.close()
+
+	writer.WriteString(testHTML)
+	if recorder.Body == nil {
+		t.Fatal("nil body")
+	}
+	if len(testHTML) != len(recorder.Body.Bytes()) {
+		t.Fatal()
+	}
+
+	if 1024 < len(writer.body.Bytes()) {
+		t.Fatal()
+	}
+
+	links := writer.extractLinks()
+	found := 0
+	for {
+		link, more := <-links
+		if more {
+			switch link.Path() {
+			case "/assets/css/gzip/bundle.min.css":
+				found++
+			case "/assets/js/gzip/bundle.min.js":
+				found++
+			case "/img":
+				found++
+			default:
+				t.Fatal(link)
+			}
+		} else {
+			break
+		}
+	}
+
+}
+
 func BenchmarkWrite(b *testing.B) {
 
 	s := &settings{}
