@@ -27,7 +27,7 @@ then
 
 else
 
-  for d in $(go list ./... | grep -v vendor); do
+  for d in $(go list ./http2/... | grep -v vendor); do
       go test -race $d
   done
 
