@@ -42,6 +42,32 @@ func TestWrite(t *testing.T) {
 	}
 }
 
+func TestWriteString(t *testing.T) {
+
+	recorder := httptest.NewRecorder()
+	writer := &responseWriter{
+		recorder,
+		nil,
+		0,
+		false,
+	}
+
+	writer.WriteString("foo")
+	if recorder.Body == nil {
+		t.Fatal("nil body")
+	}
+	if "foo" != string(recorder.Body.Bytes()) {
+		t.Fatal("expected foo, got :", recorder.Body.Bytes())
+	}
+
+	if writer.statusCode != 200 {
+		t.Fatal()
+	}
+	if recorder.Code != 200 {
+		t.Fatal()
+	}
+}
+
 func TestWriteB(t *testing.T) {
 
 	recorder := httptest.NewRecorder()

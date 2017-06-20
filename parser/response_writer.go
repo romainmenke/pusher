@@ -44,10 +44,6 @@ func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
 }
 
-func (w *responseWriter) WriteString(s string) (n int, err error) {
-	return w.Write([]byte(s))
-}
-
 func (w *responseWriter) Flush() {
 	flusher, ok := w.ResponseWriter.(http.Flusher)
 	if ok && flusher != nil {
