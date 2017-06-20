@@ -51,6 +51,14 @@ func (w *responseWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
+func (w *responseWriter) WriteString(s string) (n int, err error) {
+	if w.statusCode == 0 && !w.headerWritten {
+		w.headerWritten = true
+		w.WriteHeader(200)
+	}
+	return w.ResponseWriter.(common.StringWriter).WriteString(s)
+}
+
 // WriteHeader will inspect the current response Header and generate H2 Pushes from Link Headers.
 // After optionally sending Pushes WriteHeader sends an HTTP response header with status code.
 func (w *responseWriter) WriteHeader(s int) {
@@ -82,8 +90,4 @@ func (w *responseWriter) Flush() {
 // away.
 func (w *responseWriter) CloseNotify() <-chan bool {
 	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
-}
-
-func (w *responseWriter) WriteString(s string) (n int, err error) {
-	return w.ResponseWriter.(common.StringWriter).WriteString(s)
 }
