@@ -1,33 +1,58 @@
 #!/bin/bash
 set -e
 
+trap 'kill -HUP 0' EXIT;
+
+# warm up
+go test -run=NONE -bench=. ./link/... > link-new.bench
+go test -run=NONE -bench=. ./link/... > link-new.bench
+
 currentBranch=$(git rev-parse --abbrev-ref HEAD)
 
 echo "bench current state"
 
-go test -run=NONE -bench=. ./casper/... > casper-b.bench
-go test -run=NONE -bench=. ./common/... > common-b.bench
-go test -run=NONE -bench=. ./link/...   > link-b.bench
-go test -run=NONE -bench=. ./parser/... > parser-b.bench
-go test -run=NONE -bench=. ./rules/...  > rules-b.bench
+go test -run=NONE -bench=. ./casper/... > casper-new.bench
+go test -run=NONE -bench=. ./common/... > common-new.bench
+go test -run=NONE -bench=. ./link/...   > link-new.bench
+go test -run=NONE -bench=. ./parser/... > parser-new.bench
+go test -run=NONE -bench=. ./rules/...  > rules-new.bench
 
-echo "stash and checkout master"
-git stash
-git checkout master
+git diff-index --quiet HEAD -- &&
+{
+  echo "checkout master"
+  git checkout master
+};
+
+git diff-index --quiet HEAD -- ||
+{
+  echo "stash and checkout master"
+  git stash
+  stashed=true
+  git checkout master
+};
 
 echo "bench master"
-go test -run=NONE -bench=. ./casper/... > casper-a.bench
-go test -run=NONE -bench=. ./common/... > common-a.bench
-go test -run=NONE -bench=. ./link/...   > link-a.bench
-go test -run=NONE -bench=. ./parser/... > parser-a.bench
-go test -run=NONE -bench=. ./rules/...  > rules-a.bench
+go test -run=NONE -bench=. ./casper/... > casper-old.bench
+go test -run=NONE -bench=. ./common/... > common-old.bench
+go test -run=NONE -bench=. ./link/...   > link-old.bench
+go test -run=NONE -bench=. ./parser/... > parser-old.bench
+go test -run=NONE -bench=. ./rules/...  > rules-old.bench
 
 echo "go back to current state"
 git checkout $currentBranch
-git stash pop
 
-benchcmp casper-a.bench casper-b.bench
-benchcmp common-a.bench common-b.bench
-benchcmp link-a.bench link-b.bench
-benchcmp parser-a.bench parser-b.bench
-benchcmp rules-a.bench rules-b.bench
+if [ "$stashed" = true ]; then
+  echo "pop stash"
+  git stash pop
+fi
+
+echo "--- casper ---"
+benchcmp casper-old.bench casper-new.bench || true
+echo "--- common ---"
+benchcmp common-old.bench common-new.bench || true
+echo "--- link ---"
+benchcmp link-old.bench   link-new.bench || true
+echo "--- parser ---"
+benchcmp parser-old.bench parser-new.bench || true
+echo "--- rules ---"
+benchcmp rules-old.bench  rules-new.bench || true
