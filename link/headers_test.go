@@ -1,8 +1,10 @@
 package link
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -55,6 +57,9 @@ var lotsOfHeaders = http.Header{
 	"X-Requested-With":       []string{"X-Requested-With-Value-A", "X-Requested-With-Value-B"},
 	"X-UIDH":                 []string{"X-UIDH-Value-A", "X-UIDH-Value-B"},
 	"X-Wap-Profile":          []string{"X-Wap-Profile-Value-A", "X-Wap-Profile-Value-B"},
+
+	"Accept-Ch":          []string{"Accept-Ch-Value-A", "Accept-Ch-Value-B"},
+	"Accept-Ch-Lifetime": []string{"Accept-Ch-Lifetime-Value-A", "Accept-Ch-Lifetime-Value-B"},
 }
 
 var fewHeaders = http.Header{
@@ -117,6 +122,8 @@ func pushSafeHeaderTest(t *testing.T, key string, header http.Header, safe bool)
 func safeHeader(key string) bool {
 	switch key {
 	case "Accept-Charset":
+	case "Accept-Ch":
+	case "Accept-Ch-Lifetime":
 	case "Accept-Encoding":
 	case "Accept-Language":
 	case "Authorization":
@@ -157,6 +164,24 @@ func TestPushSafeHeaders_B(t *testing.T) {
 
 	for _, key := range []string{"Accept-Charset", "Accept-Encoding", "Dnt", "Proxy-Authorization", "User-Agent", "User-Agent", "Host"} {
 		pushSafeHeaderTest(t, key, pushSaveHeaderDst, safeHeader(key))
+	}
+
+}
+
+func TestAcceptCH(t *testing.T) {
+
+	header := http.Header{}
+	header.Set("Accept-CH", "foo")
+
+	buf := bytes.NewBuffer(nil)
+	err := header.Write(buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	strHeader := string(buf.Bytes())
+	if !strings.Contains(strHeader, "Accept-Ch") {
+		t.Fatal("expected \"Accept-Ch:...\"")
 	}
 
 }
