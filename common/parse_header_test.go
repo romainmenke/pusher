@@ -45,6 +45,15 @@ func TestParseLinkHeaderF(t *testing.T) {
 	}
 }
 
+// see: https://community.cloudflare.com/t/http-2-server-push-not-work-with-double-quotes-in-headers-rfc5988/1645
+func TestParseLinkHeaderQuoted(t *testing.T) {
+
+	res := ParseLinkHeader(`</image.jpg>; rel="preload"; as="image"`)
+	if res != "/image.jpg" {
+		t.Fatal("expected : /image.jpg , got :", res)
+	}
+}
+
 func TestParseLinkHeaderBadA(t *testing.T) {
 
 	res := ParseLinkHeader("/fonts/CutiveMono-Regular.ttf>; rel=preload; as=font;")

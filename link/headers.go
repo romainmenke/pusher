@@ -3,25 +3,37 @@ package link
 import "net/http"
 
 func copyPushSafeHeader(dst, src http.Header) {
-	if vv, found := src["Accept-Charset"]; found {
-		dst["Accept-Charset"] = vv
-	}
-	if vv, found := src["Accept-Encoding"]; found {
-		dst["Accept-Encoding"] = vv
-	}
-	if vv, found := src["Accept-Language"]; found {
-		dst["Accept-Language"] = vv
-	}
-	if vv, found := src["Authorization"]; found {
-		dst["Authorization"] = vv
-	}
-	if vv, found := src["Cookie"]; found {
-		dst["Cookie"] = vv
-	}
-	if vv, found := src["Dnt"]; found {
-		dst["Dnt"] = vv
-	}
-	if vv, found := src["User-Agent"]; found {
-		dst["User-Agent"] = vv
+	for k, vv := range src {
+		switch k {
+		case "Accept-Charset":
+			dst[k] = vv
+			continue
+		case "Accept-Ch":
+			dst[k] = vv
+			continue
+		case "Accept-Ch-Lifetime":
+			dst[k] = vv
+			continue
+		case "Accept-Encoding":
+			dst[k] = vv
+			continue
+		case "Accept-Language":
+			dst[k] = vv
+			continue
+		case "Authorization":
+			dst[k] = vv
+			continue
+		case "Cookie":
+			dst[k] = vv
+			continue
+		case "Dnt":
+			dst[k] = vv
+			continue
+		case "User-Agent":
+			dst[k] = vv
+			continue
+		default:
+			continue
+		}
 	}
 }

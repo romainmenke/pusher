@@ -17,6 +17,8 @@ const (
 	Preload = "preload"
 	// RelIsPreload directive
 	RelIsPreload = "rel=preload"
+	// RelIsPreload directive quoted
+	RelIsPreloadQuoted = `rel="preload"`
 	// XForwardedFor Header Key
 	XForwardedFor = "X-Forwarded-For"
 )
